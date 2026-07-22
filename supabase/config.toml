@@ -1,0 +1,9 @@
+# Supabase CLI configuration. Only non-default values are declared; everything
+# else uses CLI defaults. Used by:
+#   npx supabase link --project-ref <ref>   (once, per developer)
+#   npx supabase db push                    (apply supabase/migrations/)
+#   npm run db:types                        (generate src/lib/supabase/types.gen.ts)
+project_id = "healthcare-store"
+
+[db.seed]
+enabled = false

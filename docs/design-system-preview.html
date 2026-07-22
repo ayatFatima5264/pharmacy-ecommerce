@@ -1,0 +1,721 @@
+<title>Healthcare Store — Design System</title>
+
+<style>
+  /* ---------------------------------------------------------------
+     Document chrome tokens (theme-aware) vs. product tokens (fixed).
+     The product is a light-only storefront, so component specimens sit
+     on a canvas that never flips. Only the surrounding document themes.
+     --------------------------------------------------------------- */
+  :root {
+    --blue-50:#EFF5FF; --blue-100:#DBE8FE; --blue-500:#2B7FFF;
+    --blue-600:#0057D9; --blue-700:#0046AE; --blue-900:#062C6B;
+    --green-50:#ECFDF5; --green-600:#0E9F6E; --green-700:#047857;
+    --amber-50:#FFFBEB; --amber-600:#D97706; --amber-700:#B45309;
+    --red-50:#FEF2F2;   --red-600:#DC2626;   --red-700:#B91C1C;
+    --g-50:#F8FAFC; --g-100:#F1F5F9; --g-200:#E2E8F0; --g-400:#94A3B8;
+    --g-500:#64748B; --g-700:#334155; --g-900:#0F172A;
+
+    /* document chrome */
+    --page:#FFFFFF;
+    --panel:#F8FAFC;
+    --ink:#0F172A;
+    --ink-2:#475569;
+    --ink-3:#64748B;
+    --rule:#E2E8F0;
+    --rule-soft:#EEF2F7;
+    --accent:#0057D9;
+    --canvas:#FFFFFF;
+
+    --serif: 'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --sans: system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    --mono: ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page:#0B1220; --panel:#111B2E; --ink:#E8EEF7; --ink-2:#AFC0D6;
+      --ink-3:#8698B0; --rule:#22304A; --rule-soft:#1A2438; --accent:#7FB0FF;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page:#0B1220; --panel:#111B2E; --ink:#E8EEF7; --ink-2:#AFC0D6;
+    --ink-3:#8698B0; --rule:#22304A; --rule-soft:#1A2438; --accent:#7FB0FF;
+  }
+  :root[data-theme="light"] {
+    --page:#FFFFFF; --panel:#F8FAFC; --ink:#0F172A; --ink-2:#475569;
+    --ink-3:#64748B; --rule:#E2E8F0; --rule-soft:#EEF2F7; --accent:#0057D9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap { max-width:1180px; margin:0 auto; padding:0 24px 120px; }
+
+  /* ---- masthead ---- */
+  .mast { padding:72px 0 40px; border-bottom:1px solid var(--rule); }
+  .eyebrow {
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 18px;
+  }
+  .mast h1 {
+    font-size:clamp(34px,5.2vw,54px); line-height:1.04; letter-spacing:-.028em;
+    font-weight:700; margin:0 0 20px; text-wrap:balance; max-width:16ch;
+  }
+  .lede {
+    font-family:var(--serif); font-size:19px; line-height:1.62;
+    color:var(--ink-2); max-width:60ch; margin:0;
+  }
+
+  .rules { display:grid; gap:1px; background:var(--rule); border:1px solid var(--rule);
+           border-radius:12px; overflow:hidden; margin-top:40px; }
+  @media (min-width:760px){ .rules{ grid-template-columns:repeat(3,1fr); } }
+  .rule-card { background:var(--panel); padding:22px 24px; }
+  .rule-card h4 { margin:0 0 8px; font-size:14.5px; font-weight:650; letter-spacing:-.01em; }
+  .rule-card p { margin:0; font-size:13.5px; line-height:1.58; color:var(--ink-3); }
+
+  /* ---- sections ---- */
+  section { padding-top:72px; scroll-margin-top:24px; }
+  .sec-head { display:flex; align-items:baseline; gap:14px;
+              border-bottom:1px solid var(--rule); padding-bottom:14px; margin-bottom:34px; }
+  .sec-head h2 { font-size:24px; letter-spacing:-.018em; font-weight:650; margin:0; }
+  .sec-head span { font-family:var(--mono); font-size:11.5px; color:var(--ink-3);
+                   letter-spacing:.1em; text-transform:uppercase; margin-left:auto; }
+  .note { font-family:var(--serif); font-size:16.5px; line-height:1.65;
+          color:var(--ink-2); max-width:66ch; margin:0 0 30px; }
+  .note em { color:var(--ink); font-style:italic; }
+
+  /* ---- swatches ---- */
+  .swatches { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); }
+  .sw { border:1px solid var(--rule); border-radius:12px; overflow:hidden; background:var(--panel); }
+  .sw .chip { height:66px; }
+  .sw .meta { padding:11px 13px 13px; }
+  .sw .name { font-size:12.5px; font-weight:600; letter-spacing:-.005em; }
+  .sw .hex { font-family:var(--mono); font-size:11.5px; color:var(--ink-3);
+             text-transform:uppercase; margin-top:2px; }
+  .sw .ratio { font-family:var(--mono); font-size:10.5px; margin-top:8px;
+               display:inline-flex; align-items:center; gap:5px; padding:2px 7px;
+               border-radius:999px; border:1px solid var(--rule); color:var(--ink-3); }
+  .sw .ratio.pass { color:#047857; border-color:#A7F3D0; background:#ECFDF5; }
+  .sw .ratio.ui   { color:#B45309; border-color:#FDE68A; background:#FFFBEB; }
+
+  /* ---- product canvas: always light ---- */
+  .canvas {
+    background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px;
+    padding:34px; color:#0F172A; font-family:var(--sans);
+  }
+  .canvas-label {
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ink-3); margin-bottom:10px;
+  }
+
+  /* ---- type specimen ---- */
+  .type-row { display:grid; gap:6px 26px; padding:17px 0; border-bottom:1px solid #F1F5F9; }
+  @media (min-width:720px){ .type-row{ grid-template-columns:112px 1fr; align-items:baseline; } }
+  .type-row:last-child { border-bottom:0; }
+  .type-key { font-family:var(--mono); font-size:11px; color:#64748B;
+              letter-spacing:.06em; text-transform:uppercase; }
+  .t-display{font-size:44px;line-height:1.06;font-weight:700;letter-spacing:-.02em;}
+  .t-h1{font-size:34px;line-height:1.18;font-weight:700;letter-spacing:-.02em;}
+  .t-h2{font-size:24px;line-height:1.33;font-weight:650;letter-spacing:-.01em;}
+  .t-h3{font-size:19px;line-height:1.47;font-weight:600;}
+  .t-body{font-size:16px;line-height:1.62;}
+  .t-sm{font-size:14px;line-height:1.57;color:#64748B;}
+  .t-cap{font-size:12.5px;line-height:1.44;font-weight:500;color:#64748B;
+         letter-spacing:.03em;text-transform:uppercase;}
+  .t-price{font-size:30px;line-height:1.2;font-weight:700;font-variant-numeric:tabular-nums;}
+
+  /* ---- product components ---- */
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+         height:44px; padding:0 20px; border-radius:12px; font-size:15px;
+         font-weight:600; font-family:var(--sans); border:1px solid transparent;
+         cursor:pointer; transition:background .12s ease,border-color .12s ease; }
+  .btn-primary{background:#0057D9;color:#fff;}
+  .btn-primary:hover{background:#0046AE;}
+  .btn-secondary{background:#fff;color:#0057D9;border-color:#0057D9;}
+  .btn-secondary:hover{background:#EFF5FF;}
+  .btn-ghost{background:transparent;color:#334155;}
+  .btn-ghost:hover{background:#F1F5F9;}
+  .btn-danger{background:#DC2626;color:#fff;}
+  .btn-danger:hover{background:#B91C1C;}
+  .btn:disabled{background:#F1F5F9;color:#94A3B8;border-color:transparent;cursor:not-allowed;}
+  .btn:focus-visible{outline:2px solid #0057D9;outline-offset:2px;}
+
+  .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);
+           border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion:reduce){ .spinner{animation:none;} * { transition:none !important; } }
+
+  .cluster{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+
+  .field{display:flex;flex-direction:column;gap:6px;max-width:340px;}
+  .field label{font-size:13.5px;font-weight:600;color:#334155;}
+  .field input{height:44px;border:1px solid #E2E8F0;border-radius:8px;padding:0 13px;
+               font-size:16px;font-family:var(--sans);background:#fff;color:#0F172A;}
+  .field input:focus{outline:none;border-color:#0057D9;box-shadow:0 0 0 3px #DBE8FE;}
+  .field.err input{border-color:#DC2626;}
+  .field .msg{font-size:13px;color:#DC2626;display:flex;align-items:center;gap:5px;}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
+         font-size:12.5px;font-weight:600;letter-spacing:.01em;}
+  .b-rx{background:rgba(217,119,6,.12);color:#B45309;}
+  .b-ok{background:#ECFDF5;color:#047857;}
+  .b-info{background:#EFF5FF;color:#0046AE;}
+  .b-err{background:#FEF2F2;color:#DC2626;}
+  .b-off{background:#F1F5F9;color:#64748B;}
+  .b-sale{background:#FEF2F2;color:#DC2626;}
+
+  /* product card */
+  .cards{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));}
+  .pcard{border:1px solid #E2E8F0;border-radius:12px;background:#fff;overflow:hidden;
+         display:flex;flex-direction:column;transition:box-shadow .12s ease;}
+  .pcard:hover{box-shadow:0 1px 2px rgb(15 23 42/.06);}
+  .pcard .img{aspect-ratio:1;background:#F8FAFC;position:relative;
+              display:flex;align-items:center;justify-content:center;font-size:40px;}
+  .pcard .img .badge{position:absolute;top:10px;left:10px;}
+  .pcard .body{padding:13px 14px 15px;display:flex;flex-direction:column;gap:5px;flex:1;}
+  .pcard .brand{font-size:11.5px;font-weight:600;color:#64748B;
+                letter-spacing:.045em;text-transform:uppercase;}
+  .pcard .title{font-size:15px;font-weight:600;line-height:1.35;letter-spacing:-.005em;}
+  .pcard .sub{font-size:13px;color:#64748B;}
+  .pcard .prices{display:flex;align-items:baseline;gap:8px;
+                 font-variant-numeric:tabular-nums;margin-top:2px;}
+  .pcard .now{font-size:21px;font-weight:700;}
+  .pcard .was{font-size:13.5px;color:#94A3B8;text-decoration:line-through;}
+  .pcard .stock{font-size:13px;color:#047857;display:flex;align-items:center;gap:6px;}
+  .pcard .stock.out{color:#64748B;}
+  .dot{width:7px;height:7px;border-radius:50%;background:#0E9F6E;flex:none;}
+  .dot.out{background:#94A3B8;}
+  .pcard .btn{width:100%;margin-top:9px;}
+
+  /* states */
+  .states{display:grid;gap:16px;}
+  @media (min-width:900px){ .states{grid-template-columns:repeat(3,1fr);} }
+  .state{border:1px solid #E2E8F0;border-radius:12px;padding:26px 20px;
+         text-align:center;display:flex;flex-direction:column;
+         align-items:center;gap:9px;background:#fff;}
+  .state .ico{font-size:26px;}
+  .state h5{margin:0;font-size:15px;font-weight:650;}
+  .state p{margin:0;font-size:13.5px;color:#64748B;line-height:1.5;max-width:30ch;}
+  .sk{background:#F1F5F9;border-radius:6px;}
+  .sk-line{height:11px;}
+  .sk-pulse{animation:pulse 1.5s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+  @media (prefers-reduced-motion:reduce){ .sk-pulse{animation:none;} }
+
+  .banner{border-radius:12px;padding:13px 15px;display:flex;gap:10px;
+          font-size:14px;line-height:1.5;align-items:flex-start;}
+  .ban-err{background:#FEF2F2;color:#B91C1C;}
+  .ban-ok{background:#ECFDF5;color:#047857;}
+  .ban-rx{background:#FFFBEB;color:#B45309;}
+
+  /* ---- page mockups ---- */
+  .mocks{display:grid;gap:26px;}
+  @media (min-width:940px){ .mocks{grid-template-columns:300px 1fr;align-items:start;} }
+  .phone{border:1px solid #E2E8F0;border-radius:20px;overflow:hidden;background:#fff;
+         box-shadow:0 12px 32px rgb(15 23 42/.10);}
+  .phone .bar{background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:9px 14px;
+              font-size:11.5px;color:#64748B;display:flex;justify-content:space-between;
+              font-family:var(--mono);}
+  .phone .scr{padding:15px;display:flex;flex-direction:column;gap:11px;}
+  .hero-img{aspect-ratio:1;background:#F8FAFC;border-radius:12px;
+            display:flex;align-items:center;justify-content:center;font-size:56px;}
+  .sticky-buy{border-top:1px solid #E2E8F0;background:#fff;padding:11px 15px;
+              display:flex;align-items:center;gap:11px;}
+  .sticky-buy .btn{flex:1;}
+
+  .browser{border:1px solid #E2E8F0;border-radius:14px;overflow:hidden;background:#fff;
+           box-shadow:0 12px 32px rgb(15 23 42/.10);}
+  .browser .chrome{background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:9px 14px;
+                   display:flex;align-items:center;gap:7px;}
+  .browser .chrome i{width:10px;height:10px;border-radius:50%;background:#E2E8F0;display:block;}
+  .browser .url{margin-left:9px;font-family:var(--mono);font-size:11.5px;color:#64748B;}
+  .browser .view{padding:22px;}
+
+  .co-step{border:1px solid #E2E8F0;border-radius:12px;padding:15px 17px;margin-bottom:11px;}
+  .co-step.done{border-color:#E2E8F0;}
+  .co-head{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;
+           letter-spacing:.07em;text-transform:uppercase;color:#64748B;margin-bottom:11px;}
+  .co-head .n{width:20px;height:20px;border-radius:50%;background:#0057D9;color:#fff;
+              display:flex;align-items:center;justify-content:center;
+              font-size:11.5px;font-weight:700;flex:none;}
+  .co-head .tick{margin-left:auto;color:#047857;font-size:14px;}
+  .opt{border:1px solid #E2E8F0;border-radius:10px;padding:11px 13px;font-size:14px;
+       display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .opt.sel{border-color:#0057D9;background:#EFF5FF;}
+  .opt .r{width:16px;height:16px;border-radius:50%;border:2px solid #94A3B8;flex:none;}
+  .opt.sel .r{border-color:#0057D9;border-width:5px;}
+  .opt .tail{margin-left:auto;color:#64748B;font-size:13.5px;
+             font-variant-numeric:tabular-nums;}
+  .totals{border-top:1px solid #E2E8F0;margin-top:15px;padding-top:13px;
+          font-variant-numeric:tabular-nums;}
+  .trow{display:flex;justify-content:space-between;font-size:14px;
+        color:#64748B;padding:3px 0;}
+  .trow.grand{font-size:18px;font-weight:700;color:#0F172A;
+              border-top:1px solid #E2E8F0;margin-top:9px;padding-top:11px;}
+
+  /* admin */
+  .admin{background:#F8FAFC;border-radius:12px;padding:18px;font-size:13px;}
+  .kpis{display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+        margin-bottom:15px;}
+  .kpi{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:13px 15px;}
+  .kpi .k{font-size:11.5px;color:#64748B;letter-spacing:.045em;text-transform:uppercase;font-weight:600;}
+  .kpi .v{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;
+          margin-top:3px;letter-spacing:-.02em;}
+  .kpi .d{font-size:12.5px;margin-top:2px;}
+  table{width:100%;border-collapse:collapse;background:#fff;
+        border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;}
+  th{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#64748B;
+     text-align:left;padding:10px 13px;background:#F8FAFC;
+     border-bottom:1px solid #E2E8F0;font-weight:650;}
+  td{padding:10px 13px;border-bottom:1px solid #F1F5F9;font-size:13.5px;}
+  tr:last-child td{border-bottom:0;}
+  td.num{font-variant-numeric:tabular-nums;}
+  .tbl-scroll{overflow-x:auto;}
+
+  .stripe{display:inline-block;width:3px;height:15px;border-radius:2px;
+          vertical-align:-3px;margin-right:8px;}
+
+  /* misc */
+  .grid2{display:grid;gap:26px;}
+  @media (min-width:860px){ .grid2{grid-template-columns:1fr 1fr;} }
+  .radii{display:flex;flex-wrap:wrap;gap:16px;}
+  .radius-box{width:96px;height:74px;border:1px solid #E2E8F0;background:#F8FAFC;
+              display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px;
+              font-family:var(--mono);font-size:10.5px;color:#64748B;}
+  .elev{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+  .elev-box{background:#fff;border-radius:12px;padding:19px 15px;text-align:center;
+            font-family:var(--mono);font-size:10.5px;color:#64748B;}
+  .e0{border:1px solid #E2E8F0;}
+  .e1{box-shadow:0 1px 2px rgb(15 23 42/.06);}
+  .e2{box-shadow:0 4px 12px rgb(15 23 42/.08);}
+  .e3{box-shadow:0 12px 32px rgb(15 23 42/.12);}
+
+  footer{margin-top:88px;padding-top:26px;border-top:1px solid var(--rule);
+         font-size:13.5px;color:var(--ink-3);}
+  code{font-family:var(--mono);font-size:.9em;background:var(--panel);
+       padding:1px 5px;border-radius:4px;border:1px solid var(--rule-soft);}
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <p class="eyebrow">Design System · v1</p>
+    <h1>Healthcare commerce, built for trust.</h1>
+    <p class="lede">
+      A premium storefront for medicines, lab tests, and health packages in Pakistan.
+      White ground, blue for the one action that matters, green reserved for things
+      genuinely verified. Designed mobile-first for mid-range Android on 4G — which
+      is where this product actually lives.
+    </p>
+
+    <div class="rules">
+      <div class="rule-card">
+        <h4>Trust over delight</h4>
+        <p>People here are often anxious, and often buying for someone else. Legibility beats cleverness. Nothing decorative competes with anything safety-critical.</p>
+      </div>
+      <div class="rule-card">
+        <h4>Apple shell, Amazon decision</h4>
+        <p>Restraint and whitespace for navigation and marketing. Density where people decide — price, stock, and delivery date visible without scrolling.</p>
+      </div>
+      <div class="rule-card">
+        <h4>One blue action per view</h4>
+        <p>Blue is scarce on purpose. If three things on a screen are blue, none of them answers “what do I do next?”</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- COLOR -->
+  <section id="color">
+    <div class="sec-head"><h2>Color</h2><span>Measured, not estimated</span></div>
+    <p class="note">
+      Every value is checked against white. The pairs exist because a single hue can rarely
+      serve both a fill and body text — <em>green-600 fails AA at 3.38:1</em>, so it fills
+      badges while green-700 does the writing. Collapsing those into one green is the most
+      common accessibility failure in “green means good” systems.
+    </p>
+
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#0057D9"></div><div class="meta">
+        <div class="name">blue-600 · primary</div><div class="hex">#0057D9</div>
+        <span class="ratio pass">6.24:1 AA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#0046AE"></div><div class="meta">
+        <div class="name">blue-700 · hover</div><div class="hex">#0046AE</div>
+        <span class="ratio pass">8.6:1 AAA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#EFF5FF"></div><div class="meta">
+        <div class="name">blue-50 · surface</div><div class="hex">#EFF5FF</div></div></div>
+      <div class="sw"><div class="chip" style="background:#0E9F6E"></div><div class="meta">
+        <div class="name">green-600 · fill</div><div class="hex">#0E9F6E</div>
+        <span class="ratio ui">3.38:1 UI only</span></div></div>
+      <div class="sw"><div class="chip" style="background:#047857"></div><div class="meta">
+        <div class="name">green-700 · text</div><div class="hex">#047857</div>
+        <span class="ratio pass">5.48:1 AA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#B45309"></div><div class="meta">
+        <div class="name">amber-700 · Rx</div><div class="hex">#B45309</div>
+        <span class="ratio pass">4.9:1 AA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#DC2626"></div><div class="meta">
+        <div class="name">red-600 · danger</div><div class="hex">#DC2626</div>
+        <span class="ratio pass">4.83:1 AA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#64748B"></div><div class="meta">
+        <div class="name">gray-500 · secondary</div><div class="hex">#64748B</div>
+        <span class="ratio pass">4.76:1 AA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#0F172A"></div><div class="meta">
+        <div class="name">gray-900 · heading</div><div class="hex">#0F172A</div>
+        <span class="ratio pass">17.9:1 AAA</span></div></div>
+      <div class="sw"><div class="chip" style="background:#E2E8F0"></div><div class="meta">
+        <div class="name">gray-200 · border</div><div class="hex">#E2E8F0</div></div></div>
+    </div>
+
+    <p class="note" style="margin-top:30px">
+      Amber, not red, marks prescription-required. It is a <em>condition of purchase, not an
+      error</em> — and it gets a reserved hue so it is never mistaken for either a warning or
+      a success. Neutrals are slate, carrying a slight blue bias so greys sit with the accent
+      instead of muddying against it.
+    </p>
+  </section>
+
+  <!-- TYPE -->
+  <section id="type">
+    <div class="sec-head"><h2>Typography</h2><span>Inter Variable, self-hosted</span></div>
+    <p class="note">
+      Self-hosted because a font CDN round-trip costs roughly 300ms of LCP on 4G. Body text
+      never drops below 16px — it is the legibility floor, and it also stops iOS Safari
+      zooming when an input takes focus. <em>Tabular numerals are mandatory</em> on every
+      price, quantity, and lab value, so totals do not shift while they update.
+    </p>
+
+    <div class="canvas">
+      <div class="type-row"><div class="type-key">display 48</div><div class="t-display">Healthcare, delivered.</div></div>
+      <div class="type-row"><div class="type-key">h1 34</div><div class="t-h1">Panadol Extra 500mg</div></div>
+      <div class="type-row"><div class="type-key">h2 24</div><div class="t-h2">Frequently bought together</div></div>
+      <div class="type-row"><div class="type-key">h3 19</div><div class="t-h3">Complete Blood Count (CBC)</div></div>
+      <div class="type-row"><div class="type-key">body 16</div><div class="t-body">A licensed pharmacist reviews your prescription within 30 minutes of upload.</div></div>
+      <div class="type-row"><div class="type-key">body-sm 14</div><div class="t-sm">Paracetamol + Caffeine · Strip of 10 tablets</div></div>
+      <div class="type-row"><div class="type-key">caption 12.5</div><div class="t-cap">Getz Pharma</div></div>
+      <div class="type-row"><div class="type-key">price 30</div><div class="t-price">Rs 1,890</div></div>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section id="form">
+    <div class="sec-head"><h2>Radius &amp; elevation</h2><span>Borders, not shadow stacks</span></div>
+    <p class="note">
+      Radius scales with element size — 12px on a 400px card reads tight, 16px on a 32px badge
+      reads like a pill. Consistency here is <em>proportional, not literal</em>. Surfaces are
+      defined by a 1px border by default; heavy shadow is the fastest way to look dated, so
+      elevation is reserved for things that genuinely float.
+    </p>
+    <div class="canvas">
+      <div class="radii" style="margin-bottom:34px">
+        <div class="radius-box" style="border-radius:8px">8 · input</div>
+        <div class="radius-box" style="border-radius:12px">12 · card</div>
+        <div class="radius-box" style="border-radius:16px">16 · modal</div>
+        <div class="radius-box" style="border-radius:24px">24 · feature</div>
+        <div class="radius-box" style="border-radius:999px">full · pill</div>
+      </div>
+      <div class="elev">
+        <div class="elev-box e0">e0 · border</div>
+        <div class="elev-box e1">e1 · hover</div>
+        <div class="elev-box e2">e2 · popover</div>
+        <div class="elev-box e3">e3 · modal</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section id="components">
+    <div class="sec-head"><h2>Components</h2><span>Live specimens</span></div>
+
+    <div class="canvas">
+      <div class="canvas-label">Buttons — 44px, the minimum comfortable touch target</div>
+      <div class="cluster" style="margin-bottom:30px">
+        <button class="btn btn-primary">Add to cart</button>
+        <button class="btn btn-secondary">Book a test</button>
+        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-danger">Reject prescription</button>
+        <button class="btn btn-primary" aria-busy="true" disabled><span class="spinner"></span>Placing order</button>
+        <button class="btn" disabled>Out of stock</button>
+      </div>
+
+      <div class="canvas-label">Inputs — label always visible, focus ring never removed</div>
+      <div class="cluster" style="align-items:flex-start;gap:26px;margin-bottom:30px">
+        <div class="field">
+          <label for="d1">Mobile number</label>
+          <input id="d1" value="+92 300 1234567">
+        </div>
+        <div class="field err">
+          <label for="d2">Mobile number</label>
+          <input id="d2" value="0300-123" aria-invalid="true" aria-describedby="d2e">
+          <span class="msg" id="d2e">⚠ Enter an 11-digit mobile number</span>
+        </div>
+      </div>
+
+      <div class="canvas-label">Status — colour never carries meaning alone</div>
+      <div class="cluster" style="margin-bottom:30px">
+        <span class="badge b-rx">🔒 Rx required</span>
+        <span class="badge b-ok">✓ Prescription approved</span>
+        <span class="badge b-info">Out for delivery</span>
+        <span class="badge b-err">✕ Rejected — illegible</span>
+        <span class="badge b-off">Cancelled</span>
+        <span class="badge b-sale">−10%</span>
+      </div>
+
+      <div class="canvas-label">Banners</div>
+      <div style="display:flex;flex-direction:column;gap:11px;max-width:620px">
+        <div class="banner ban-rx"><span>🔒</span><span><strong>Prescription needed.</strong> Upload it now and a pharmacist will review within 30 minutes — your order ships as soon as it clears.</span></div>
+        <div class="banner ban-ok"><span>✓</span><span><strong>Order placed.</strong> Arriving Tuesday 23 July. We'll text you when it's out for delivery.</span></div>
+        <div class="banner ban-err"><span>⚠</span><span><strong>Payment didn't go through.</strong> Your JazzCash account wasn't charged. Try again or switch to cash on delivery.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT CARD -->
+  <section id="cards">
+    <div class="sec-head"><h2>Product card</h2><span>Fixed ratio, clamped title</span></div>
+    <p class="note">
+      A fixed 1:1 image and a two-line title clamp keep every card the same height, which is
+      what stops the grid reflowing as images load — <em>the main source of layout shift on
+      listing pages</em>. The generic name sits under the trade name because many customers
+      arrive holding a doctor's note that lists a molecule, not a brand.
+    </p>
+
+    <div class="canvas">
+      <div class="cards">
+        <article class="pcard">
+          <div class="img">💊<span class="badge b-rx">🔒 Rx</span></div>
+          <div class="body">
+            <div class="brand">Getz Pharma</div>
+            <div class="title">Augmentin 625mg</div>
+            <div class="sub">Amoxicillin + Clavulanate · Strip of 6</div>
+            <div class="prices"><span class="now">Rs 485</span></div>
+            <div class="stock"><span class="dot"></span>In stock</div>
+            <button class="btn btn-secondary">Add to cart</button>
+          </div>
+        </article>
+
+        <article class="pcard">
+          <div class="img">💊</div>
+          <div class="body">
+            <div class="brand">GSK</div>
+            <div class="title">Panadol Extra 500mg</div>
+            <div class="sub">Paracetamol + Caffeine · Strip of 10</div>
+            <div class="prices">
+              <span class="now">Rs 450</span>
+              <span class="was">Rs 500</span>
+              <span class="badge b-sale">−10%</span>
+            </div>
+            <div class="stock"><span class="dot"></span>In stock</div>
+            <button class="btn btn-secondary">Add to cart</button>
+          </div>
+        </article>
+
+        <article class="pcard">
+          <div class="img">🔬</div>
+          <div class="body">
+            <div class="brand">Chughtai Lab</div>
+            <div class="title">Complete Blood Count</div>
+            <div class="sub">Blood sample · Report in 24h</div>
+            <div class="prices"><span class="now">Rs 1,200</span></div>
+            <div class="stock"><span class="dot"></span>No fasting needed</div>
+            <button class="btn btn-secondary">Book test</button>
+          </div>
+        </article>
+
+        <article class="pcard">
+          <div class="img">🩺</div>
+          <div class="body">
+            <div class="brand">Omron</div>
+            <div class="title">HEM-7120 BP Monitor</div>
+            <div class="sub">Digital · Upper arm</div>
+            <div class="prices"><span class="now">Rs 8,900</span></div>
+            <div class="stock out"><span class="dot out"></span>Out of stock</div>
+            <button class="btn" disabled>Notify me</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATES -->
+  <section id="states">
+    <div class="sec-head"><h2>Loading, empty, error</h2><span>Designed, not defaulted</span></div>
+    <p class="note">
+      Skeletons match the final layout's dimensions, so nothing jumps when content arrives —
+      a centred spinner gives no layout hint and reads slower even when it isn't. Empty states
+      always carry a way forward; <em>“No results” on its own is a dead end</em>, not a design.
+    </p>
+
+    <div class="canvas">
+      <div class="states">
+        <div class="state" style="align-items:stretch;text-align:left;gap:0">
+          <div class="sk sk-pulse" style="aspect-ratio:1;border-radius:8px;margin-bottom:12px"></div>
+          <div class="sk sk-pulse sk-line" style="width:44%;margin-bottom:8px"></div>
+          <div class="sk sk-pulse sk-line" style="width:88%;margin-bottom:8px"></div>
+          <div class="sk sk-pulse sk-line" style="width:62%"></div>
+        </div>
+        <div class="state">
+          <div class="ico">🛒</div>
+          <h5>Your cart is empty</h5>
+          <p>Browse medicines, or book a lab test with home sample collection.</p>
+          <div class="cluster" style="justify-content:center;margin-top:5px">
+            <button class="btn btn-primary">Browse medicines</button>
+          </div>
+        </div>
+        <div class="state">
+          <div class="ico" style="color:#DC2626">⚠</div>
+          <h5>Couldn't load products</h5>
+          <p>Check your connection and try again. Nothing in your cart was lost.</p>
+          <div class="cluster" style="justify-content:center;margin-top:5px">
+            <button class="btn btn-secondary">Try again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGES -->
+  <section id="pages">
+    <div class="sec-head"><h2>Key screens</h2><span>The three that decide conversion</span></div>
+    <p class="note">
+      Product detail, checkout, and the pharmacist queue. The first two carry the storefront's
+      revenue; the third sits on the critical path of <em>every single prescription order</em>,
+      which makes it the highest-leverage screen in the admin panel.
+    </p>
+
+    <div class="mocks">
+      <div>
+        <div class="canvas-label">Product detail · mobile</div>
+        <div class="phone">
+          <div class="bar"><span>9:41</span><span>store.pk</span></div>
+          <div class="scr">
+            <div class="hero-img">💊</div>
+            <div>
+              <div class="t-cap" style="margin-bottom:3px">Getz Pharma</div>
+              <div style="font-size:20px;font-weight:700;letter-spacing:-.015em;line-height:1.25">Augmentin 625mg</div>
+              <div class="t-sm" style="margin-top:2px">Amoxicillin + Clavulanate</div>
+            </div>
+            <span class="badge b-rx" style="align-self:flex-start">🔒 Rx required</span>
+            <div style="font-size:27px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em">Rs 485</div>
+            <div class="t-sm" style="margin-top:-6px">Rs 81 per tablet</div>
+            <div class="cluster" style="gap:8px">
+              <span class="opt sel" style="margin:0;padding:7px 13px;font-size:13.5px">Strip of 6</span>
+              <span class="opt" style="margin:0;padding:7px 13px;font-size:13.5px">Box of 30</span>
+            </div>
+            <div style="font-size:13.5px;color:#047857;display:flex;align-items:center;gap:6px">
+              <span class="dot"></span>In stock · Delivery by Tue 23 Jul
+            </div>
+            <div class="banner ban-rx" style="font-size:13px">
+              <span>🔒</span><span>Upload a prescription at checkout. A pharmacist reviews it in ~30 min.</span>
+            </div>
+          </div>
+          <div class="sticky-buy">
+            <div>
+              <div style="font-size:11.5px;color:#64748B">Total</div>
+              <div style="font-size:17px;font-weight:700;font-variant-numeric:tabular-nums">Rs 485</div>
+            </div>
+            <button class="btn btn-primary">Add to cart</button>
+          </div>
+        </div>
+        <p class="note" style="font-size:14px;margin-top:14px;max-width:38ch">
+          The buy bar pins once the main button scrolls away. On a long page the purchase
+          action should never be more than a thumb away.
+        </p>
+      </div>
+
+      <div>
+        <div class="canvas-label">Checkout · one page, no wizard</div>
+        <div class="browser">
+          <div class="chrome"><i></i><i></i><i></i><span class="url">store.pk/checkout</span></div>
+          <div class="view">
+            <div class="co-step done">
+              <div class="co-head"><span class="n">1</span>Delivery address<span class="tick">✓</span></div>
+              <div class="opt sel"><span class="r"></span>
+                <span><strong style="font-weight:600">Home</strong> — House 12, Block B, DHA Phase 5, Karachi<br>
+                <span style="color:#64748B;font-size:13px">+92 300 1234567</span></span></div>
+              <div class="opt"><span class="r"></span>Add a new address</div>
+            </div>
+
+            <div class="co-step done">
+              <div class="co-head"><span class="n">2</span>Lab sample collection<span class="tick">✓</span></div>
+              <div class="cluster" style="gap:8px">
+                <span class="opt" style="margin:0;padding:7px 13px;font-size:13.5px">Mon 22</span>
+                <span class="opt sel" style="margin:0;padding:7px 13px;font-size:13.5px">Tue 23</span>
+                <span class="opt" style="margin:0;padding:7px 13px;font-size:13.5px">Wed 24</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                <span class="opt" style="margin:0;padding:7px 13px;font-size:13.5px;color:#94A3B8">7–9 AM · Full</span>
+                <span class="opt sel" style="margin:0;padding:7px 13px;font-size:13.5px">9–11 AM</span>
+                <span class="opt" style="margin:0;padding:7px 13px;font-size:13.5px">11–1 PM</span>
+              </div>
+            </div>
+
+            <div class="co-step">
+              <div class="co-head"><span class="n">3</span>Payment</div>
+              <div class="opt sel"><span class="r"></span>💵 Cash on delivery
+                <span class="badge b-ok" style="margin-left:7px">Most popular</span></div>
+              <div class="opt"><span class="r"></span>📱 JazzCash</div>
+              <div class="opt"><span class="r"></span>📱 Easypaisa</div>
+            </div>
+
+            <div class="totals">
+              <div class="trow"><span>Subtotal</span><span>Rs 2,100</span></div>
+              <div class="trow"><span>Discount · SAVE10</span><span style="color:#047857">− Rs 210</span></div>
+              <div class="trow"><span>Delivery</span><span style="color:#047857">Free</span></div>
+              <div class="trow grand"><span>Total</span><span>Rs 1,890</span></div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;height:52px;margin-top:15px">Place order</button>
+          </div>
+        </div>
+        <p class="note" style="font-size:14px;margin-top:14px">
+          Cash on delivery sits first and pre-selected because it is how most of this market
+          actually pays. Full collection slots stay visible but disabled — hiding them makes
+          availability unreadable.
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top:34px">
+      <div class="canvas-label">Admin · prescription queue and inventory</div>
+      <div class="admin">
+        <div class="kpis">
+          <div class="kpi"><div class="k">Revenue today</div><div class="v">Rs 284,500</div><div class="d" style="color:#047857">↑ 12% vs yesterday</div></div>
+          <div class="kpi"><div class="k">Orders</div><div class="v">142</div><div class="d" style="color:#64748B">18 awaiting Rx</div></div>
+          <div class="kpi"><div class="k">Rx queue</div><div class="v" style="color:#B45309">18</div><div class="d" style="color:#B45309">Oldest waiting 12 min</div></div>
+          <div class="kpi"><div class="k">Expiring &lt; 90d</div><div class="v" style="color:#DC2626">7</div><div class="d" style="color:#64748B">batches</div></div>
+        </div>
+        <div class="tbl-scroll">
+          <table>
+            <thead><tr><th>Batch</th><th>Product</th><th>Expiry</th><th class="num">Qty</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>B-2291</td><td>Augmentin 625mg</td><td>12 Aug 2026</td><td class="num">340</td>
+                  <td><span class="stripe" style="background:#0E9F6E"></span>Good</td></tr>
+              <tr><td>B-1877</td><td>Panadol Extra 500mg</td><td>03 Oct 2026</td><td class="num">1,204</td>
+                  <td><span class="stripe" style="background:#0E9F6E"></span>Good</td></tr>
+              <tr><td>B-2104</td><td>Ventolin Inhaler</td><td>28 Sep 2026</td><td class="num">62</td>
+                  <td><span class="stripe" style="background:#D97706"></span>Expiring soon</td></tr>
+              <tr><td>B-0912</td><td>Amoxil 500mg</td><td>14 Jul 2026</td><td class="num">18</td>
+                  <td><span class="stripe" style="background:#DC2626"></span>Expired — quarantine</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="note" style="font-size:14px;margin-top:14px">
+        The admin panel is the one place that drops the white ground. Staff sit here for hours,
+        so density is a kindness — the same density on the storefront would read as noise.
+        Expiry status carries a severity stripe as well as a word, so a shelf problem is
+        visible before anyone reads a row.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    Tokens map 1:1 to <code>globals.css</code> and the Tailwind theme.
+    Full specification in <code>docs/DESIGN-SYSTEM.md</code> and <code>docs/UI-SPEC.md</code>.
+    Targets WCAG 2.1 AA · LCP &lt; 2.5s on mid-range Android over 4G.
+  </footer>
+
+</div>

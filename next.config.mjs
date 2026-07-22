@@ -66,6 +66,9 @@ const nextConfig = {
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Product/CMS images live in Supabase Storage's public bucket; without
+    // this pattern next/image refuses the host at runtime.
+    remotePatterns: [{ protocol: 'https', hostname: '**.supabase.co' }],
   },
   async headers() {
     return [

@@ -30,8 +30,8 @@ const points = [
 
 export default async function LabTestsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams
-  const allTests = getLabTestsWithCategory()
-  const counts = countTestsPerCategory()
+  const allTests = await getLabTestsWithCategory()
+  const counts = await countTestsPerCategory()
   const packages = await getHealthPackages()
 
   const tests = allTests.filter((test) => {

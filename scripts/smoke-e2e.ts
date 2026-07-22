@@ -570,6 +570,31 @@ async function main() {
     fail('import staging classification', JSON.stringify(staged.totals))
   }
 
+  // --- 14. Step 8: analytics rollups -------------------------------------------
+  const { data: rolled, error: rollupError } = await db.rpc('rollup_analytics', { p_days: 3 })
+  const { data: todayRow } = await db
+    .from('analytics_daily')
+    .select('day, orders_count, cancelled_count, booked_value_paisa')
+    .order('day', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const tr = todayRow as {
+    day: string
+    orders_count: number
+    cancelled_count: number
+    booked_value_paisa: number
+  } | null
+  // This test's own orders all end cancelled (cleanup), so the honest
+  // assertion is that TODAY'S ACTIVITY — active or cancelled — is counted.
+  if (!rollupError && rolled === 3 && tr && tr.orders_count + tr.cancelled_count >= 1) {
+    ok(
+      'analytics rollup',
+      `today: ${tr.orders_count} active + ${tr.cancelled_count} cancelled orders bucketed (Asia/Karachi)`,
+    )
+  } else {
+    fail('analytics rollup', rollupError?.message ?? JSON.stringify(tr))
+  }
+
   console.log(
     `\nsmoke: ${passed} passed, ${failed} failed.` +
       (failed === 0 ? ` Test orders cancelled — database left clean.` : ''),

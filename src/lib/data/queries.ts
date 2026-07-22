@@ -103,19 +103,27 @@ export async function getSimilarGenerics(product: Product, limit = 3): Promise<P
 }
 
 export async function getLabTests(): Promise<LabTest[]> {
+  if (useDb()) {
+    const { getLabTestsDb } = await import('./db/lab-catalog-db')
+    return getLabTestsDb()
+  }
   return labTests
 }
 
 export async function getLabTestBySlug(slug: string): Promise<LabTest | null> {
-  return labTests.find((t) => t.slug === slug) ?? null
+  return (await getLabTests()).find((t) => t.slug === slug) ?? null
 }
 
 export async function getHealthPackages(): Promise<HealthPackage[]> {
+  if (useDb()) {
+    const { getHealthPackagesDb } = await import('./db/lab-catalog-db')
+    return getHealthPackagesDb()
+  }
   return healthPackages
 }
 
 export async function getHealthPackageBySlug(slug: string): Promise<HealthPackage | null> {
-  return healthPackages.find((p) => p.slug === slug) ?? null
+  return (await getHealthPackages()).find((p) => p.slug === slug) ?? null
 }
 
 export interface SearchResults {
@@ -134,17 +142,21 @@ export async function search(query: string): Promise<SearchResults> {
   const q = query.trim().toLowerCase()
   if (!q) return { products: [], tests: [], packages: [], total: 0 }
 
-  const productList = useDb() ? await getProductsDb() : allProducts()
+  const [productList, testList, packageList] = await Promise.all([
+    useDb() ? getProductsDb() : Promise.resolve(allProducts()),
+    getLabTests(),
+    getHealthPackages(),
+  ])
   const matchedProducts = productList.filter((p) =>
     [p.name, p.genericName ?? '', p.shortDescription, getBrandName(p.brandId)]
       .join(' ')
       .toLowerCase()
       .includes(q),
   )
-  const matchedTests = labTests.filter((t) =>
+  const matchedTests = testList.filter((t) =>
     [t.name, t.shortCode, t.description].join(' ').toLowerCase().includes(q),
   )
-  const matchedPackages = healthPackages.filter((p) =>
+  const matchedPackages = packageList.filter((p) =>
     [p.name, p.description].join(' ').toLowerCase().includes(q),
   )
 

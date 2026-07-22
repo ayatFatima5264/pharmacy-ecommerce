@@ -267,10 +267,10 @@ demo staff accounts in the codebase.
 
 ## 11. Not done — required before production
 
-1. **Persistence for commerce data.** Identity now lives in Supabase
-   (auth.users + profiles), but orders, catalog, and lab data are still the
-   in-memory scaffold — they reset on restart and diverge across instances.
-   Retired module-by-module in Steps 3+ (blueprint W1).
+1. ~~Persistence for commerce data~~ **Done** (Steps 4–8) — catalog, orders,
+   inventory, lab, settings, CMS, notifications, imports, analytics all live
+   in Postgres; the in-memory scaffold remains only as the no-env dev
+   fallback and test fixture.
 2. ~~Supabase Auth + RLS~~ **Done** — Supabase Auth is the identity provider
    (Step 2); RLS is deny-by-default with `auth.uid()` ownership policies
    (Step 1), behavior-verified in CI.
@@ -280,8 +280,10 @@ demo staff accounts in the codebase.
    Prescription and lab report access must be attributable.
 5. **MFA for staff.** Supabase Auth supports TOTP; enable + enforce for
    role-holding accounts before real health data lands.
-6. **Prescription storage wiring.** Buckets and owner-folder policies exist
-   (`0015_storage.sql`); the upload/review flows do not yet.
+6. ~~Prescription storage wiring~~ **Done** (Step 7) — checkout uploads to the
+   private bucket (guests included), pharmacist queue reviews via short-lived
+   signed URLs, decisions are licence-attributed. Remaining refinement: write
+   an `audit_log` row per file view.
 7. **Dependency and secret scanning** in CI.
 8. **`x-forwarded-for` trust.** Safe on Vercel, which strips client-supplied
    values. Behind a different proxy this must be re-verified — a spoofable

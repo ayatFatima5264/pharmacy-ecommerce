@@ -1,13 +1,33 @@
 import { healthPackages, labTests } from './catalog'
+import { useDb } from './source'
 import type { HealthPackage, LabTest } from '@/types'
 
 /**
- * Diagnostic taxonomy.
+ * Diagnostic taxonomy + lab catalog reads (async seams — DB when configured,
+ * scaffold otherwise; see ./source.ts).
  *
  * Lab tests get their OWN categories, not the pharmacy ones. "Antibiotics" is
  * meaningless for a blood panel, and forcing both into one tree would make
- * either the medicine or the diagnostics navigation nonsense.
+ * either the medicine or the diagnostics navigation nonsense. The category
+ * taxonomy itself stays code-side (editorial navigation content); tests
+ * missing from the slug map file under General Health.
  */
+
+async function baseTests(): Promise<LabTest[]> {
+  if (useDb()) {
+    const { getLabTestsDb } = await import('./db/lab-catalog-db')
+    return getLabTestsDb()
+  }
+  return labTests
+}
+
+async function basePackages(): Promise<HealthPackage[]> {
+  if (useDb()) {
+    const { getHealthPackagesDb } = await import('./db/lab-catalog-db')
+    return getHealthPackagesDb()
+  }
+  return healthPackages
+}
 
 export interface LabCategory {
   slug: string
@@ -84,8 +104,8 @@ export interface LabTestWithCategory extends LabTest {
   categoryName: string
 }
 
-export function getLabTestsWithCategory(): LabTestWithCategory[] {
-  return labTests.map((test) => {
+export async function getLabTestsWithCategory(): Promise<LabTestWithCategory[]> {
+  return (await baseTests()).map((test) => {
     const slug = TEST_CATEGORY[test.slug] ?? 'general-health'
     return {
       ...test,
@@ -99,29 +119,29 @@ export function getLabCategoryBySlug(slug: string): LabCategory | null {
   return labCategories.find((c) => c.slug === slug) ?? null
 }
 
-export function getLabTestsInCategory(slug: string): LabTestWithCategory[] {
-  return getLabTestsWithCategory().filter((test) => test.categorySlug === slug)
+export async function getLabTestsInCategory(slug: string): Promise<LabTestWithCategory[]> {
+  return (await getLabTestsWithCategory()).filter((test) => test.categorySlug === slug)
 }
 
-export function countTestsPerCategory(): Record<string, number> {
+export async function countTestsPerCategory(): Promise<Record<string, number>> {
   const counts: Record<string, number> = {}
-  for (const test of getLabTestsWithCategory()) {
+  for (const test of await getLabTestsWithCategory()) {
     counts[test.categorySlug] = (counts[test.categorySlug] ?? 0) + 1
   }
   return counts
 }
 
-export function getLabTestBySlug(slug: string): LabTestWithCategory | null {
-  return getLabTestsWithCategory().find((t) => t.slug === slug) ?? null
+export async function getLabTestBySlug(slug: string): Promise<LabTestWithCategory | null> {
+  return (await getLabTestsWithCategory()).find((t) => t.slug === slug) ?? null
 }
 
-export function getPackageBySlug(slug: string): HealthPackage | null {
-  return healthPackages.find((p) => p.slug === slug) ?? null
+export async function getPackageBySlug(slug: string): Promise<HealthPackage | null> {
+  return (await basePackages()).find((p) => p.slug === slug) ?? null
 }
 
 /** Expands a package into the tests the lab actually runs. */
-export function expandPackage(pkg: HealthPackage): LabTestWithCategory[] {
-  const all = getLabTestsWithCategory()
+export async function expandPackage(pkg: HealthPackage): Promise<LabTestWithCategory[]> {
+  const all = await getLabTestsWithCategory()
   return pkg.includedTestSlugs
     .map((slug) => all.find((t) => t.slug === slug))
     .filter((t): t is LabTestWithCategory => Boolean(t))

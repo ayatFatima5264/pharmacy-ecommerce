@@ -257,16 +257,16 @@ export async function placeOrder(
 
     // A package is sold as one item but the lab runs each member test, so it is
     // expanded here into the worklist the phlebotomist and lab actually need.
-    const bookedTests = lines
-      .filter((line) => line.kind === 'test' || line.kind === 'package')
-      .flatMap((line) => {
-        if (line.kind === 'test') {
-          const test = getLabTestBySlug(line.slug)
-          return test ? [test] : []
-        }
-        const pkg = getPackageBySlug(line.slug)
-        return pkg ? expandPackage(pkg) : []
-      })
+    const bookedTests: Awaited<ReturnType<typeof expandPackage>> = []
+    for (const line of lines.filter((l) => l.kind === 'test' || l.kind === 'package')) {
+      if (line.kind === 'test') {
+        const test = await getLabTestBySlug(line.slug)
+        if (test) bookedTests.push(test)
+      } else {
+        const pkg = await getPackageBySlug(line.slug)
+        if (pkg) bookedTests.push(...(await expandPackage(pkg)))
+      }
+    }
 
     const labName = bookedTests[0]?.labName ?? 'Chughtai Lab'
     const slotLabel = SLOT_TEMPLATES.find((s) => s.id === b.slotId)?.label ?? b.slotId

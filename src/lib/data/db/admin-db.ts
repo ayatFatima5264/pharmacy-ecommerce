@@ -144,42 +144,71 @@ export const getDashboardMetricsDb = cache(async () => {
   }
 })
 
+/**
+ * Ensures the rollups are usable: recompute when today's row is missing or
+ * more than ten minutes old. At most one cheap recompute per ten minutes of
+ * dashboard traffic; the nightly cron rebuilds a 35-day window regardless.
+ */
+const ensureRollupsFresh = cache(async (): Promise<void> => {
+  const db = supabaseService()
+  const { data } = await db
+    .from('analytics_daily')
+    .select('day, updated_at')
+    .order('day', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const latest = data as { day: string; updated_at: string } | null
+  const today = new Date(Date.now() + 5 * 3_600_000).toISOString().slice(0, 10) // Asia/Karachi
+  const stale =
+    !latest ||
+    latest.day < today ||
+    Date.now() - new Date(latest.updated_at).getTime() > 10 * 60_000
+  if (stale) {
+    const { error } = await db.rpc('rollup_analytics', { p_days: 14 })
+    if (error) console.error('[analytics] rollup failed', error)
+  }
+})
+
+/** 14-day series from the analytics_daily rollups (W9: no OLTP scans). */
 export async function getRevenueSeriesDb() {
-  const orders = await fetchOrderRows()
-  const DAY = 86_400_000
-  const now = Date.now()
-  return Array.from({ length: 14 }, (_, i) => {
-    const date = new Date(now - (13 - i) * DAY)
-    const dayOrders = orders.filter(
-      (o) =>
-        o.status !== 'cancelled' &&
-        new Date(o.placed_at).toDateString() === date.toDateString(),
-    )
+  await ensureRollupsFresh()
+  const { data } = await supabaseService()
+    .from('analytics_daily')
+    .select('day, booked_value_paisa, orders_count')
+    .order('day', { ascending: false })
+    .limit(14)
+  const rows = ((data ?? []) as { day: string; booked_value_paisa: number; orders_count: number }[])
+    .slice()
+    .reverse()
+  return rows.map((row) => {
+    const date = new Date(`${row.day}T00:00:00`)
     return {
       date: date.toISOString(),
       label: date.toLocaleDateString('en-PK', { day: 'numeric', month: 'short' }),
-      revenuePaisa: dayOrders.reduce((sum, o) => sum + o.total_paisa, 0),
-      orderCount: dayOrders.length,
+      revenuePaisa: row.booked_value_paisa,
+      orderCount: row.orders_count,
     }
   })
 }
 
 export async function getTopProductsDb(limit = 5) {
-  // Full AdminProductRow rows enriched with REAL sales figures (item_name is
-  // the snapshot key — it matches the product name at sale time).
+  // AdminProductRow rows enriched with sales from the product rollups
+  // (item_name is the sale-time snapshot key — it matches the product name).
   const { getAdminProductsDb } = await import('./admin-catalog-db')
-  const [orders, products] = await Promise.all([fetchOrderRows(), getAdminProductsDb()])
+  await ensureRollupsFresh()
+  const [{ data: rollups }, products] = await Promise.all([
+    supabaseService()
+      .from('analytics_product_daily')
+      .select('item_name, units, revenue_paisa'),
+    getAdminProductsDb(),
+  ])
 
   const byName = new Map<string, { unitsSold: number; revenuePaisa: number }>()
-  for (const order of orders) {
-    if (order.status === 'cancelled') continue
-    for (const item of order.order_items) {
-      if (!item.variant_id) continue
-      const entry = byName.get(item.item_name) ?? { unitsSold: 0, revenuePaisa: 0 }
-      entry.unitsSold += item.quantity
-      entry.revenuePaisa += item.line_total_paisa
-      byName.set(item.item_name, entry)
-    }
+  for (const row of (rollups ?? []) as { item_name: string; units: number; revenue_paisa: number }[]) {
+    const entry = byName.get(row.item_name) ?? { unitsSold: 0, revenuePaisa: 0 }
+    entry.unitsSold += row.units
+    entry.revenuePaisa += row.revenue_paisa
+    byName.set(row.item_name, entry)
   }
   return products
     .map((product) => ({

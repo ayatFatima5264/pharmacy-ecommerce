@@ -23,6 +23,7 @@ import {
   supportsHomeCollection,
 } from '../src/lib/data/lab-store'
 
+async function main() {
 let passed = 0
 let failed = 0
 
@@ -33,27 +34,27 @@ function check(name: string, condition: boolean, detail = '') {
 
 console.log('\nCategories')
 {
-  const tests = getLabTestsWithCategory()
+  const tests = await getLabTestsWithCategory()
   check('every test has a category', tests.every((t) => t.categorySlug && t.categoryName))
   check('every category slug is real',
     tests.every((t) => labCategories.some((c) => c.slug === t.categorySlug)))
 
-  const counts = countTestsPerCategory()
+  const counts = await countTestsPerCategory()
   check('category counts sum to the test total',
     Object.values(counts).reduce((a, b) => a + b, 0) === tests.length)
 
-  check('HbA1c is filed under diabetes', getLabTestBySlug('hba1c')?.categorySlug === 'diabetes')
+  check('HbA1c is filed under diabetes', (await getLabTestBySlug('hba1c'))?.categorySlug === 'diabetes')
   check('LFT and RFT share the organ-function category',
-    getLabTestsInCategory('organ-function').length === 2)
-  check('unknown category yields no tests', getLabTestsInCategory('nonsense').length === 0)
+    (await getLabTestsInCategory('organ-function')).length === 2)
+  check('unknown category yields no tests', (await getLabTestsInCategory('nonsense')).length === 0)
 }
 
 console.log('\nPackages')
 {
-  const pkg = getPackageBySlug('full-body-checkup')
+  const pkg = await getPackageBySlug('full-body-checkup')
   check('package resolves', pkg !== null)
 
-  const tests = pkg ? expandPackage(pkg) : []
+  const tests = pkg ? await expandPackage(pkg) : []
   check('package expands into its member tests', tests.length === 6, String(tests.length))
   check('expanded tests are real test records', tests.every((t) => t.slug && t.name))
 
@@ -63,14 +64,14 @@ console.log('\nPackages')
     pkg !== null && pkg.pricePaisa < individual,
     `pkg ${pkg?.pricePaisa} vs sum ${individual}`)
 
-  check('unknown package resolves to null', getPackageBySlug('nope') === null)
+  check('unknown package resolves to null', (await getPackageBySlug('nope')) === null)
 }
 
 console.log('\nFasting rules')
 {
-  const lipid = getLabTestBySlug('lipid-profile')!   // 12h
-  const lft = getLabTestBySlug('liver-function-test')! // 8h
-  const cbc = getLabTestBySlug('complete-blood-count')! // none
+  const lipid = (await getLabTestBySlug('lipid-profile'))!   // 12h
+  const lft = (await getLabTestBySlug('liver-function-test'))! // 8h
+  const cbc = (await getLabTestBySlug('complete-blood-count'))! // none
 
   check('no fasting needed for non-fasting tests', fastingHoursFor([cbc]) === null)
   check('single fasting test returns its own hours', fastingHoursFor([lft]) === 8)
@@ -184,3 +185,5 @@ console.log('\nPatient details validation')
 
 console.log(`\n${passed} passed, ${failed} failed\n`)
 process.exit(failed === 0 ? 0 : 1)
+}
+main()

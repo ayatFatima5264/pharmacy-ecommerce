@@ -39,8 +39,8 @@ Staff bootstrap: `npm run seed:admin`. Guest checkout requires no account.
 
 ## Migrations
 
-Applied set (live on the Supabase project): `0001`–`0012` domain schema (audited & corrected in Step 1) · `0013` rate limits · `0014` RLS · `0015` storage buckets + policies · `0016` email outbox · `0017` commerce core (`place_order` / `reserve_stock` / `release_order_stock`) · `0018` admin ops (`release_slot`) · `0019` settings · `0020` CMS pages.
-Planned: `0021` notifications · `0022` imports · `0023` analytics.
+Applied set (live on the Supabase project): `0001`–`0012` domain schema (audited & corrected in Step 1) · `0013` rate limits · `0014` RLS · `0015` storage buckets + policies · `0016` email outbox · `0017` commerce core · `0018` admin ops · `0019` settings · `0020` CMS pages · `0021` notifications · `0022` Rx flow (`place_order` v2: prescription attach + notification emission) · `0023` imports.
+Planned: `0024` analytics.
 Apply with `npm run db:migrate` (direct connection, no CLI login; CLI-ledger compatible).
 Verify anytime with `npm run check:migrations` (in-process Postgres + auth shim, no Docker needed) — includes 10 behavior tests of the checkout transaction (FEFO, oversell rollback, slot capacity, coupon budget, idempotency, outbox claim).
 

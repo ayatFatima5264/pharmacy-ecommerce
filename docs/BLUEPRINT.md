@@ -378,7 +378,7 @@ The pre-review draft was audited; every weakness below is **already corrected in
 | W11 | **Guest order tracking could leak PII** if order number alone suffices (enumerable). | Track-order requires order# **+** phone last-4 match; responses omit full address; rate-limited. |
 | W12 | **CMS/media without versioning** — a bad publish breaks the homepage with no undo. | CMS uses draft→publish with version history and one-click rollback; `revalidateTag` scoped per section (`CMS.md`). |
 | W13 | **No maintenance switch** — store can't be safely paused (e.g., during migration cutover). | ✅ Partially done (Step 6): `store.status` setting pauses pharmacy orders and/or lab bookings independently, enforced in the checkout action (browsing stays live). Full-site maintenance interstitial remains future. |
-| W14 | **Rx compliance gap**: Rx-required items could ship unreviewed. | Order fulfilment gate: orders containing Rx items cannot leave `processing` until a `prescription_reviews` approval exists (pharmacist permission). Enforced in the status machine, not UI. |
+| W14 | **Rx compliance gap**: Rx-required items could ship unreviewed. | ✅ Done (Step 7): Rx orders start life `awaiting_rx`; checkout uploads the prescription (guests included, private bucket); the `/admin/prescriptions` queue gates approval on a pharmacists **licence record** (not just the role); approval confirms the order only when every Rx line is approved; rejection emails the customer the reason via the outbox. Smoke-verified end-to-end. |
 
 ## 16. Blueprint Index
 

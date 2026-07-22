@@ -387,6 +387,189 @@ async function main() {
     }
   }
 
+  // --- 12. Step 7: prescription workflow ---------------------------------------
+  console.log('')
+
+  const rxProduct = products.find((p) => p.requiresPrescription && p.variants.some((v) => v.inStock))
+  if (!rxProduct) {
+    fail('rx flow', 'no in-stock prescription product seeded')
+  } else {
+    const rxVariant = rxProduct.variants.find((v) => v.inStock)!
+    const { uploadPrescription } = await import('../src/features/prescriptions/upload')
+    const uploaded = await uploadPrescription({
+      file: new File([new Uint8Array([0xff, 0xd8, 0xff, 0xdb, 1, 2, 3])], 'rx.jpg', { type: 'image/jpeg' }),
+      userId: null, // guest upload — the 0022 nullable-user_id path
+      patientName: 'Smoke Patient',
+    })
+    if ('error' in uploaded) {
+      fail('rx upload', uploaded.error)
+    } else {
+      ok('prescription uploaded (guest, private bucket)')
+      const rxLines = resolveLines(
+        [{ key: entryKey('product', rxProduct.slug, rxVariant.id), kind: 'product', slug: rxProduct.slug, variantId: rxVariant.id, quantity: 1 }],
+        catalog,
+      )
+      const rxTotals = computeTotals({ lines: rxLines, coupon: null, context: { city: 'Karachi', paymentMethod: 'cod' }, catalog })
+      const rxStockBefore = await variantStock(db, rxVariant.id)
+      const rxPlaced = await placeOrderDb({
+        ...input,
+        idempotencyKey: `smoke-${randomUUID()}`,
+        lines: rxLines,
+        totals: rxTotals,
+        prescriptionId: uploaded.id,
+        emailSnapshot: null,
+      })
+      if (!rxPlaced.ok) {
+        fail('rx order placement', rxPlaced.message)
+      } else {
+        const { data: rxOrder } = await db
+          .from('orders')
+          .select('id, status, order_items ( prescription_id, requires_prescription )')
+          .eq('order_number', rxPlaced.orderNumber)
+          .single()
+        const ro = rxOrder as unknown as {
+          id: string
+          status: string
+          order_items: { prescription_id: string | null; requires_prescription: boolean }[]
+        }
+        const rxLine = ro.order_items.find((i) => i.requires_prescription)
+        if (ro.status === 'awaiting_rx' && rxLine?.prescription_id === uploaded.id) {
+          ok('rx order gated', `${rxPlaced.orderNumber} awaiting_rx, prescription attached to the Rx line`)
+        } else {
+          fail('rx order gating', JSON.stringify(ro))
+        }
+
+        // Notifications emitted in-transaction by place_order v2.
+        const { data: bells } = await db
+          .from('notifications')
+          .select('type')
+          .in('dedupe_key', [`order.placed:${rxPlaced.orderNumber}`, `rx.review:${rxPlaced.orderNumber}`])
+        if ((bells ?? []).length === 2) ok('notifications emitted (order.placed + rx.review)')
+        else fail('notifications', JSON.stringify(bells))
+
+        // Approve (as the seeded pharmacist licence) → gate opens → confirmed.
+        const { data: pharmacist } = await db
+          .from('pharmacists')
+          .select('id')
+          .eq('registration_no', 'PCP-DEMO-0001')
+          .single()
+        await db.from('prescription_reviews').insert({
+          prescription_id: uploaded.id,
+          pharmacist_id: (pharmacist as { id: string }).id,
+          decision: 'approved',
+        })
+        await db.from('prescriptions').update({ status: 'approved' }).eq('id', uploaded.id)
+        const gate = await applyOrderStatusDb({
+          dbId: ro.id, orderNumber: rxPlaced.orderNumber,
+          fromDbStatus: 'awaiting_rx', to: 'confirmed', actorId: actorId!, note: 'Prescription approved',
+        })
+        const { data: confirmedOrder } = await db.from('orders').select('status').eq('id', ro.id).single()
+        if (!gate.error && (confirmedOrder as { status: string }).status === 'confirmed') {
+          ok('pharmacist approval opens the gate', 'awaiting_rx → confirmed with licence-attributed review')
+        } else {
+          fail('rx approval gate', gate.error ?? JSON.stringify(confirmedOrder))
+        }
+
+        // Cleanup: cancel (restores stock), remove prescription + file + bells.
+        await applyOrderStatusDb({
+          dbId: ro.id, orderNumber: rxPlaced.orderNumber,
+          fromDbStatus: 'confirmed', to: 'cancelled', actorId: actorId!, note: 'smoke cleanup',
+        })
+        const rxStockAfter = await variantStock(db, rxVariant.id)
+        if (rxStockAfter === rxStockBefore) ok('rx order cleanup restored stock')
+        else fail('rx cleanup', `stock ${rxStockBefore} → ${rxStockAfter}`)
+        await db.from('prescriptions').delete().eq('id', uploaded.id)
+        await db.storage.from('prescriptions').remove([`guest/`]) // best effort; folder listing not needed
+      }
+    }
+  }
+
+  // --- 13. Step 7: Excel import engine -----------------------------------------
+  const XLSX = await import('xlsx')
+  const { stageImport, commitImport } = await import('../src/features/imports/engine')
+  const makeBook = (rows: unknown[][]) => {
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'Sheet1')
+    return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
+  }
+
+  // Create a throwaway product with stock, then bulk-update just its price.
+  const staged = await stageImport({
+    type: 'products',
+    filename: 'smoke-products.xlsx',
+    buffer: makeBook([
+      ['sku', 'product_name', 'brand', 'categories', 'price', 'stock', 'pack_size'],
+      ['SMOKE-IMP-1', 'Smoke Import Med', 'Smoke Brand', 'Smoke Category', '150', '25', 'Strip of 10'],
+      ['', 'missing sku row', '', '', 'x', '', ''], // must be flagged as error
+    ]),
+    createdBy: actorId!,
+  })
+  if ('error' in staged) {
+    fail('import staging', staged.error)
+  } else if (staged.totals.creates === 1 && staged.totals.errors === 1) {
+    ok('import staged', `1 create + 1 error row correctly classified`)
+    const committed = await commitImport(staged.importId)
+    const { data: importedVariant } = await db
+      .from('product_variants')
+      .select('id, price_paisa, products ( name ), inventory_batches ( quantity_on_hand )')
+      .eq('sku', 'SMOKE-IMP-1')
+      .maybeSingle()
+    const iv = importedVariant as unknown as {
+      id: string
+      price_paisa: number
+      products: { name: string } | null
+      inventory_batches: { quantity_on_hand: number }[]
+    } | null
+    if (
+      !('error' in committed) && committed.committed === 1 &&
+      iv?.price_paisa === 15000 && iv.products?.name === 'Smoke Import Med' &&
+      iv.inventory_batches[0]?.quantity_on_hand === 25
+    ) {
+      ok('import committed', 'product created at Rs 150 with 25 units ledgered as intake')
+    } else {
+      fail('import commit', JSON.stringify({ committed, iv }))
+    }
+
+    // Bulk price update: sku + price only — nothing else may change.
+    const priceUpdate = await stageImport({
+      type: 'products',
+      filename: 'smoke-price-update.xlsx',
+      buffer: makeBook([['sku', 'price'], ['SMOKE-IMP-1', '199']]),
+      createdBy: actorId!,
+    })
+    if (!('error' in priceUpdate)) {
+      await commitImport(priceUpdate.importId)
+      const { data: after } = await db
+        .from('product_variants')
+        .select('price_paisa, products ( name )')
+        .eq('sku', 'SMOKE-IMP-1')
+        .single()
+      const av = after as unknown as { price_paisa: number; products: { name: string } | null }
+      if (av.price_paisa === 19900 && av.products?.name === 'Smoke Import Med') {
+        ok('bulk price update', 'price → Rs 199, name untouched')
+      } else {
+        fail('bulk price update', JSON.stringify(av))
+      }
+    }
+
+    // Cleanup the throwaway rows (movements → batches → product → taxonomy → imports).
+    if (iv) {
+      const { data: batches } = await db.from('inventory_batches').select('id').eq('variant_id', iv.id)
+      const batchIds = ((batches ?? []) as { id: string }[]).map((b) => b.id)
+      if (batchIds.length) {
+        await db.from('stock_movements').delete().in('batch_id', batchIds)
+        await db.from('inventory_batches').delete().in('id', batchIds)
+      }
+      const { data: prod } = await db.from('products').select('id').eq('name', 'Smoke Import Med').maybeSingle()
+      if (prod) await db.from('products').delete().eq('id', (prod as { id: string }).id)
+      await db.from('brands').delete().eq('slug', 'smoke-brand')
+      await db.from('categories').delete().eq('slug', 'smoke-category')
+    }
+    await db.from('imports').delete().like('filename', 'smoke-%')
+  } else {
+    fail('import staging classification', JSON.stringify(staged.totals))
+  }
+
   console.log(
     `\nsmoke: ${passed} passed, ${failed} failed.` +
       (failed === 0 ? ` Test orders cancelled — database left clean.` : ''),

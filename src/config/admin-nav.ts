@@ -3,6 +3,7 @@ import {
   Boxes,
   ClipboardCheck,
   FileText,
+  FileUp,
   FlaskConical,
   Layers,
   LayoutDashboard,
@@ -30,6 +31,7 @@ export const adminNav = [
     items: [
       { label: 'Products', href: '/admin/products', icon: Package },
       { label: 'Inventory', href: '/admin/inventory', icon: Layers },
+      { label: 'Imports', href: '/admin/imports', icon: FileUp },
       { label: 'Categories', href: '/admin/categories', icon: Boxes },
       { label: 'Brands', href: '/admin/brands', icon: Tags },
     ],

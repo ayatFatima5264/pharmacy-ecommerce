@@ -17,7 +17,8 @@ import type { CartCatalog, CatalogEntry, ShippingZoneSnapshot } from '@/features
  * every cart total and for checkout re-pricing.
  */
 
-export const FREE_DELIVERY_THRESHOLD_PAISA = 200_000 // Rs 2,000
+// Free delivery is disabled — shipping is always charged normally.
+export const FREE_DELIVERY_THRESHOLD_PAISA = 0
 const DEFAULT_WEIGHT_GRAMS = 60
 const DEVICE_WEIGHT_GRAMS = 700
 const FALLBACK_PER_KG_SURCHARGE_PAISA = 5_000
@@ -184,7 +185,8 @@ export const getCartCatalogDb = cache(async (): Promise<CartCatalog> => {
           cities: rate.shipping_zones.shipping_zone_areas.map((a) => a.city),
           carrier: rate.shipping_methods.carrier,
           ratePaisa: 0,
-          freeAbovePaisa: rate.free_above_paisa,
+          // Free-above thresholds are ignored storefront-side: no free delivery.
+          freeAbovePaisa: null,
           minDays: rate.shipping_methods.min_days,
           maxDays: rate.shipping_methods.max_days,
           supportsCod: rate.shipping_methods.supports_cod,

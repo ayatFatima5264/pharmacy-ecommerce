@@ -11,13 +11,15 @@ import {
 } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Breadcrumbs } from '@/components/shared/primitives'
-import { cities, siteConfig } from '@/config/site'
+import { siteConfig } from '@/config/site'
+import { DELIVERY_CITY, areasFor } from '@/config/locations'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'About us',
   description:
-    'A DRAP-licensed online medical store in Pakistan. How we source genuine medicine, verify prescriptions, and protect the cold chain.',
+    'A DRAP-licensed online medical store serving Lahore. How we source genuine medicine, verify prescriptions, and protect the cold chain.',
+  alternates: { canonical: '/about' },
 }
 
 const highlights = [
@@ -68,7 +70,7 @@ export default function AboutPage() {
               </h1>
               <p className="mt-4 max-w-xl text-lg leading-relaxed text-gray-500">
                 {siteConfig.name} is your trusted online medical store and lab-testing partner in
-                Pakistan. We are committed to 100% genuine medicines, reliable lab tests, and
+                Lahore. We are committed to 100% genuine medicines, reliable lab tests, and
                 expert healthcare support — all from the comfort of your home.
               </p>
 
@@ -114,7 +116,7 @@ export default function AboutPage() {
       <section className="border-b border-gray-200 bg-gray-50" aria-label="At a glance">
         <div className="container grid grid-cols-2 gap-6 py-10 text-center md:grid-cols-4">
           {[
-            { value: `${cities.length}+`, label: 'Cities served' },
+            { value: `${areasFor(DELIVERY_CITY).length}+`, label: 'Lahore areas served' },
             { value: '24h', label: 'Typical lab report time' },
             { value: '100%', label: 'Batch-tracked stock' },
             { value: '9am–11pm', label: 'Support, every day' },

@@ -18,7 +18,12 @@ import type { CartCatalog, CatalogEntry, ShippingZoneSnapshot } from './types'
  * the scaffold below serves machines without a project. Same shape either way.
  */
 
-export const FREE_DELIVERY_THRESHOLD_PAISA = 200_000 // Rs 2,000
+/**
+ * Free delivery is disabled — shipping is always charged normally. Set to 0 so
+ * no order subtotal can ever cross the threshold. (The pricing engine keeps
+ * threshold support so re-enabling later is a one-line change.)
+ */
+export const FREE_DELIVERY_THRESHOLD_PAISA = 0
 
 /** Rough dispatch weights. Real values come from product_variants.weight_grams. */
 const DEFAULT_WEIGHT_GRAMS = 60
@@ -115,7 +120,8 @@ function buildScaffoldCatalog(): CartCatalog {
       cities: [...zone.cities],
       carrier: zone.carrier,
       ratePaisa: zone.ratePaisa,
-      freeAbovePaisa: zone.freeAbovePaisa,
+      // Free-above thresholds are ignored storefront-side: no free delivery.
+      freeAbovePaisa: null,
       minDays: zone.minDays,
       maxDays: zone.maxDays,
       supportsCod: zone.supportsCod,

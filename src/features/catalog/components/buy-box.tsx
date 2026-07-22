@@ -154,7 +154,7 @@ export function BuyBox({ product, brandName }: { product: Product; brandName: st
       <ul className="flex flex-col gap-2.5 border-t border-gray-200 pt-5 text-body-sm text-gray-500">
         <li className="flex items-center gap-2.5">
           <Truck className="h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />
-          Free delivery on orders over Rs 2,000
+          Fast delivery across Lahore
         </li>
         <li className="flex items-center gap-2.5">
           <RotateCcw className="h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />

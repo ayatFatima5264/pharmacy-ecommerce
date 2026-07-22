@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: 'Health packages — bundled screening',
   description:
     'Comprehensive health check-up packages with home sample collection. Full body checkup, diabetes screening, and women’s wellness panels.',
+  alternates: { canonical: '/health-packages' },
 }
 
 export default async function HealthPackagesPage() {

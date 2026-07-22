@@ -6,7 +6,14 @@
  * instead of throwing, which lets the store and email templates be tested here.
  */
 import { checkoutSchema } from '../src/features/checkout/schemas/checkout-schema'
-import { citiesFor, isCityInProvince, PAYMENT_METHODS } from '../src/config/locations'
+import {
+  DELIVERY_CITY,
+  OUTSIDE_DELIVERY_MESSAGE,
+  PAYMENT_METHODS,
+  SUPPORTED_CITIES,
+  areasFor,
+  isDeliverableArea,
+} from '../src/config/locations'
 import {
   findOrderByIdempotencyKey,
   findOrderByNumber,
@@ -34,10 +41,9 @@ const validForm = {
   lastName: 'Khan',
   phone: '03001234567',
   email: 'ahmed@example.pk',
-  province: 'Sindh',
-  city: 'Karachi',
-  address: 'House 12, Block B, DHA Phase 5',
-  postalCode: '75500',
+  area: 'DHA Phase 5',
+  address: 'House 12, Block B, Street 3',
+  postalCode: '54000',
   notes: 'Ring the bell twice',
   paymentMethod: 'cod',
   couponCode: '',
@@ -69,22 +75,31 @@ console.log('\nPhone')
   }
 }
 
-console.log('\nProvince and city consistency')
+console.log('\nLahore-only delivery coverage')
 {
-  check('Karachi is in Sindh', isCityInProvince('Karachi', 'Sindh'))
-  check('Lahore is NOT in Sindh', !isCityInProvince('Lahore', 'Sindh'))
-  check('Punjab lists Lahore', citiesFor('Punjab').includes('Lahore'))
+  check('exactly one supported city', SUPPORTED_CITIES.length === 1)
+  check('the supported city is Lahore', DELIVERY_CITY === 'Lahore')
+  check('Lahore lists Johar Town', areasFor('Lahore').includes('Johar Town'))
+  check('an unsupported city has no areas', areasFor('Karachi').length === 0)
+  check('DHA Phase 5 is deliverable', isDeliverableArea('DHA Phase 5'))
+  check('an unknown area is not deliverable', !isDeliverableArea('Clifton'))
 
-  const mismatch = checkoutSchema.safeParse({ ...validForm, province: 'Punjab', city: 'Karachi' })
-  check('city outside the chosen province rejected', !mismatch.success)
-  check('mismatch error is attached to the city field',
-    !mismatch.success && mismatch.error.issues.some((i) => i.path.includes('city')))
+  for (const area of areasFor(DELIVERY_CITY)) {
+    const r = checkoutSchema.safeParse({ ...validForm, area })
+    if (!r.success) { check(`area "${area}" accepted`, false); break }
+  }
+  check('every listed Lahore area accepted', true)
 
-  const valid = checkoutSchema.safeParse({ ...validForm, province: 'Punjab', city: 'Lahore' })
-  check('matching province/city accepted', valid.success)
+  const outside = checkoutSchema.safeParse({ ...validForm, area: 'Clifton' })
+  check('area outside coverage rejected', !outside.success)
+  check('rejection carries the Lahore-only message',
+    !outside.success &&
+      outside.error.issues.some(
+        (i) => i.path.includes('area') && i.message === OUTSIDE_DELIVERY_MESSAGE,
+      ))
 
-  const unknownCity = checkoutSchema.safeParse({ ...validForm, city: 'Atlantis' })
-  check('undeliverable city rejected', !unknownCity.success)
+  const missing = checkoutSchema.safeParse({ ...validForm, area: '' })
+  check('missing area rejected', !missing.success)
 }
 
 console.log('\nOptional fields')

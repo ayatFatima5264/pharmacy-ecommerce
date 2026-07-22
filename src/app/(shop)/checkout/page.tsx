@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { AlertCircle, Check, ChevronDown, Loader2, Lock, ShieldCheck } from 'lucide-react'
+import { AlertCircle, Check, ChevronDown, Lock, ShieldCheck } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +14,12 @@ import { useCart } from '@/features/cart/cart-context'
 import { placeOrder } from '@/features/checkout/actions/place-order'
 import { idlePlaceOrderState } from '@/features/orders/action-state'
 import { AppointmentSection } from '@/features/lab/components/appointment-section'
-import { PAYMENT_METHODS, PROVINCES, citiesFor } from '@/config/locations'
+import {
+  DELIVERY_CITY,
+  OUTSIDE_DELIVERY_MESSAGE,
+  PAYMENT_METHODS,
+  areasFor,
+} from '@/config/locations'
 import { cn, formatPrice } from '@/lib/utils'
 
 export default function CheckoutPage() {
@@ -22,8 +27,8 @@ export default function CheckoutPage() {
   const cart = useCart()
   const [state, formAction] = useActionState(placeOrder, idlePlaceOrderState)
 
-  const [province, setProvince] = React.useState<string>('Sindh')
-  const [city, setCity] = React.useState<string>('Karachi')
+  // Lahore-only delivery (Version 1): city is fixed; the customer picks an area.
+  const [area, setArea] = React.useState<string>('')
   const [paymentMethod, setPaymentMethod] = React.useState<string>('cod')
   const [summaryOpen, setSummaryOpen] = React.useState(false)
   const [prescriptionName, setPrescriptionName] = React.useState<string | null>(null)
@@ -36,22 +41,17 @@ export default function CheckoutPage() {
       : String(Date.now()) + Math.random().toString(36).slice(2),
   )
 
-  const cities = citiesFor(province)
+  const areas = areasFor(DELIVERY_CITY)
   const totals = cart.totals
 
-  // Keep the cart's shipping quote in step with the address chosen here.
+  // The shipping quote is always for the one supported city.
   React.useEffect(() => {
-    cart.setCity(city)
-  }, [city]) // eslint-disable-line react-hooks/exhaustive-deps
+    cart.setCity(DELIVERY_CITY)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     cart.setPaymentMethod(paymentMethod === 'cod' ? 'cod' : 'online')
   }, [paymentMethod]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Changing province must not leave a city from the previous one selected.
-  React.useEffect(() => {
-    if (!cities.includes(city)) setCity(cities[0] ?? '')
-  }, [province]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // On success: clear the cart, then hand off to the confirmation page.
   React.useEffect(() => {
@@ -139,7 +139,6 @@ export default function CheckoutPage() {
         {/* Cart contents travel as refs and quantities only. The server prices
             them: a total submitted by a browser is a total a browser can edit. */}
         <input type="hidden" name="items" value={itemsPayload} />
-        <input type="hidden" name="couponCode" value={cart.coupon?.code ?? ''} />
         <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
 
         <div className="flex flex-col gap-6">
@@ -203,51 +202,62 @@ export default function CheckoutPage() {
 
           <Section number={2} title="Delivery address">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Province" htmlFor="province" error={err('province')} required>
-                <Select
-                  id="province"
-                  name="province"
-                  value={province}
-                  onChange={(e) => setProvince(e.target.value)}
-                  required
-                >
-                  {PROVINCES.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
+              {/* City is fixed — Version 1 delivers within Lahore only. */}
+              <Field
+                label="City"
+                htmlFor="city"
+                hint="We currently deliver within Lahore only"
+                required
+              >
+                <Select id="city" value={DELIVERY_CITY} disabled aria-readonly="true">
+                  <option value={DELIVERY_CITY}>{DELIVERY_CITY}</option>
                 </Select>
               </Field>
 
-              {/* City options depend on province, so the two can never disagree. */}
-              <Field label="City" htmlFor="city" error={err('city')} required>
+              <Field label="Area" htmlFor="area" error={err('area')} required>
                 <Select
-                  id="city"
-                  name="city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  id="area"
+                  name="area"
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  aria-invalid={!!err('area')}
                   required
                 >
-                  {cities.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
+                  <option value="" disabled>
+                    Choose your area…
+                  </option>
+                  {areas.map((a) => (
+                    <option key={a} value={a}>
+                      {a}
                     </option>
                   ))}
+                  <option value="__outside__">My area is not listed</option>
                 </Select>
               </Field>
+
+              {/* An unlisted area means we cannot deliver — say so plainly. */}
+              {area === '__outside__' && (
+                <p
+                  role="alert"
+                  className="flex items-start gap-2 rounded-sm bg-red-50 p-3 text-body-sm text-red-700 sm:col-span-2"
+                >
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  {OUTSIDE_DELIVERY_MESSAGE}
+                </p>
+              )}
 
               <Field
                 label="Street address"
                 htmlFor="address"
                 error={err('address')}
-                hint="House or flat number, street, area"
+                hint="House or flat number, street, block"
                 className="sm:col-span-2"
                 required
               >
                 <Input
                   id="address"
                   name="address"
-                  placeholder="House 12, Block B, DHA Phase 5"
+                  placeholder="House 12, Block B, Street 3"
                   autoComplete="street-address"
                   aria-invalid={!!err('address')}
                   required
@@ -265,7 +275,7 @@ export default function CheckoutPage() {
                   name="postalCode"
                   inputMode="numeric"
                   maxLength={5}
-                  placeholder="75500"
+                  placeholder="54000"
                   autoComplete="postal-code"
                   className="tabular"
                   aria-invalid={!!err('postalCode')}
@@ -290,7 +300,7 @@ export default function CheckoutPage() {
           {totals.hasLabItems && (
             <Section number={3} title="Lab appointment">
               <AppointmentSection
-                city={city}
+                city={DELIVERY_CITY}
                 fastingHours={labFastingHours}
                 testNames={labTestNames}
                 errors={err}
@@ -366,7 +376,7 @@ export default function CheckoutPage() {
                         {option.icon} {option.label}
                       </span>
                       <span className="block text-body-sm text-gray-500">
-                        {disabled ? `Not available for delivery to ${city}` : option.detail}
+                        {disabled ? `Not available for delivery to ${DELIVERY_CITY}` : option.detail}
                       </span>
                     </span>
                     {option.recommended && !disabled && <Badge tone="success">Most popular</Badge>}
@@ -444,12 +454,6 @@ export default function CheckoutPage() {
                     <dt className="text-gray-500">Subtotal</dt>
                     <dd className="text-gray-900">{formatPrice(totals.subtotalPaisa)}</dd>
                   </div>
-                  {totals.discountPaisa > 0 && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Discount · {cart.coupon?.code}</dt>
-                      <dd className="text-green-700">− {formatPrice(totals.discountPaisa)}</dd>
-                    </div>
-                  )}
                   {totals.taxPaisa > 0 && (
                     <div className="flex justify-between">
                       <dt className="text-gray-500">Tax</dt>

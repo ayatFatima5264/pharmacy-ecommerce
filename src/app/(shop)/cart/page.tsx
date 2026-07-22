@@ -5,26 +5,22 @@ import Link from 'next/link'
 import {
   AlertCircle,
   AlertTriangle,
-  Loader2,
   Lock,
+  MapPin,
   ShoppingCart,
-  Tag,
   Trash2,
   Truck,
-  X,
 } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Input, Select } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
 import { Breadcrumbs, EmptyState, MediaPlaceholder } from '@/components/shared/primitives'
 import { QuantityStepper } from '@/features/cart/components/add-to-cart'
 import { useCart } from '@/features/cart/cart-context'
-import { CART_CITIES } from '@/features/cart/cities'
+import { DELIVERY_CITY } from '@/config/locations'
 import { cn, formatPrice } from '@/lib/utils'
 
 export default function CartPage() {
   const cart = useCart()
-  const [code, setCode] = React.useState('')
 
   // Nothing renders from localStorage until after hydration, so server and
   // client HTML agree on the first paint.
@@ -199,8 +195,8 @@ export default function CartPage() {
 
         <aside aria-label="Order summary">
           <div className="flex flex-col gap-4 lg:sticky lg:top-32">
-            {/* Shipping estimator — Amazon and Shopify both quote before
-                checkout, because an unknown delivery cost is a reason to leave. */}
+            {/* Delivery quote — Version 1 serves Lahore only, so there is
+                nothing to choose; the estimate is always for Lahore. */}
             {totals.hasPhysicalItems && (
               <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-e1 md:p-6">
                 <h2 className="mb-3 flex items-center gap-2 text-h3">
@@ -208,23 +204,15 @@ export default function CartPage() {
                   Delivery
                 </h2>
 
-                <label htmlFor="cart-city" className="mb-1.5 block text-body-sm font-semibold text-gray-700">
-                  Deliver to
-                </label>
-                <Select
-                  id="cart-city"
-                  value={cart.city ?? ''}
-                  onChange={(e) => cart.setCity(e.target.value || null)}
-                >
-                  <option value="">Choose your city…</option>
-                  {CART_CITIES.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </Select>
+                <p className="flex items-center gap-1.5 text-body-sm font-semibold text-gray-900">
+                  <MapPin className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                  {DELIVERY_CITY}
+                </p>
+                <p className="mt-1 text-body-sm text-gray-500">
+                  We currently deliver only within Lahore.
+                </p>
 
-                {totals.shipping ? (
+                {totals.shipping && (
                   <div className="mt-3 rounded-sm bg-gray-50 p-3 text-body-sm">
                     <p className="font-semibold text-gray-900">{totals.shipping.zoneName}</p>
                     <p className="mt-0.5 text-gray-500">
@@ -240,10 +228,6 @@ export default function CartPage() {
                       </p>
                     )}
                   </div>
-                ) : (
-                  <p className="mt-2 text-body-sm text-gray-500">
-                    Choose a city to see delivery cost and timing.
-                  </p>
                 )}
               </div>
             )}
@@ -251,81 +235,11 @@ export default function CartPage() {
             <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-e1 md:p-6">
               <h2 className="mb-4 text-h3">Order summary</h2>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  void cart.applyCoupon(code)
-                  setCode('')
-                }}
-                className="mb-5"
-              >
-                <label htmlFor="coupon" className="sr-only">
-                  Coupon code
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    id="coupon"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="Coupon code"
-                    autoComplete="off"
-                    disabled={cart.couponPending}
-                  />
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    disabled={!code.trim() || cart.couponPending}
-                  >
-                    {cart.couponPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                    ) : (
-                      'Apply'
-                    )}
-                  </Button>
-                </div>
-                {cart.couponMessage && (
-                  <p
-                    className={cn(
-                      'mt-2 flex items-start gap-1.5 text-body-sm',
-                      cart.couponMessage.ok ? 'text-green-700' : 'text-red-600',
-                    )}
-                    role="status"
-                  >
-                    <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    {cart.couponMessage.text}
-                  </p>
-                )}
-              </form>
-
               <dl className="tabular flex flex-col gap-2.5 text-body-sm">
                 <div className="flex justify-between">
                   <dt className="text-gray-500">Subtotal</dt>
                   <dd className="text-gray-900">{formatPrice(totals.subtotalPaisa)}</dd>
                 </div>
-
-                {cart.coupon && (
-                  <div className="flex justify-between">
-                    <dt className="flex items-center gap-1.5 text-gray-500">
-                      <Tag className="h-3.5 w-3.5" aria-hidden="true" />
-                      {cart.coupon.code}
-                      <button
-                        type="button"
-                        onClick={cart.removeCoupon}
-                        aria-label="Remove coupon"
-                        className="rounded-sm text-gray-400 hover:text-red-600"
-                      >
-                        <X className="h-3.5 w-3.5" aria-hidden="true" />
-                      </button>
-                    </dt>
-                    <dd className="text-green-700">
-                      {totals.discountPaisa > 0
-                        ? `− ${formatPrice(totals.discountPaisa)}`
-                        : cart.coupon.discountType === 'free_shipping'
-                          ? 'Free delivery'
-                          : '—'}
-                    </dd>
-                  </div>
-                )}
 
                 {/* The tax row appears only when tax is actually charged. Showing
                     "Tax Rs 0" on every order is noise, but the engine computes
@@ -349,7 +263,7 @@ export default function CartPage() {
                     {!totals.hasPhysicalItems
                       ? 'Not required'
                       : !totals.shipping
-                        ? 'Choose a city'
+                        ? 'Calculated at checkout'
                         : totals.shipping.isFree
                           ? 'Free'
                           : formatPrice(totals.shippingPaisa)}
@@ -361,35 +275,6 @@ export default function CartPage() {
                   <dd className="text-gray-900">{formatPrice(totals.totalPaisa)}</dd>
                 </div>
               </dl>
-
-              {totals.freeDeliveryRemainingPaisa > 0 && (
-                <div className="mt-4 rounded-md bg-blue-50 p-3.5">
-                  <p className="flex items-center gap-1.5 text-body-sm font-medium text-blue-700">
-                    <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    Add {formatPrice(totals.freeDeliveryRemainingPaisa)} more for free delivery.
-                  </p>
-                  {/* Visual-only progress toward the free-delivery threshold,
-                      derived from totals the cart engine already computes. */}
-                  <div
-                    className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-blue-100"
-                    aria-hidden="true"
-                  >
-                    <div
-                      className="h-full rounded-full bg-blue-600 transition-all duration-medium"
-                      style={{
-                        width: `${Math.min(
-                          100,
-                          Math.round(
-                            (totals.subtotalPaisa /
-                              (totals.subtotalPaisa + totals.freeDeliveryRemainingPaisa)) *
-                              100,
-                          ),
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
 
               <Link
                 href="/checkout"

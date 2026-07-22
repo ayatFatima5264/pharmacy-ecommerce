@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ALL_CITIES, PROVINCES, isCityInProvince } from '@/config/locations'
+import { DELIVERY_CITY, OUTSIDE_DELIVERY_MESSAGE, isDeliverableArea } from '@/config/locations'
 
 /**
  * Checkout validation. One schema for the form and for the Server Action —
@@ -32,8 +32,12 @@ export const checkoutSchema = z
       .optional()
       .default(''),
 
-    province: z.enum(PROVINCES, { errorMap: () => ({ message: 'Choose your province' }) }),
-    city: z.string().trim().refine((v) => ALL_CITIES.includes(v), 'Choose a delivery city'),
+    // Lahore-only in Version 1: the customer picks an AREA, not a city. An
+    // area outside the supported list is refused with the coverage message.
+    area: z
+      .string()
+      .trim()
+      .refine((v) => isDeliverableArea(v, DELIVERY_CITY), OUTSIDE_DELIVERY_MESSAGE),
     address: z.string().trim().min(10, 'Enter your full street address').max(200),
     postalCode: z
       .string()
@@ -55,11 +59,6 @@ export const checkoutSchema = z
 
     /** Dedupes a retried submission into one order. */
     idempotencyKey: z.string().trim().min(8).max(64),
-  })
-  // City must belong to the chosen province, or a courier label is wrong.
-  .refine((v) => isCityInProvince(v.city, v.province), {
-    message: 'That city is not in the selected province',
-    path: ['city'],
   })
 
 export type CheckoutValues = z.infer<typeof checkoutSchema>

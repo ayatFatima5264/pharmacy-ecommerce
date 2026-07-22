@@ -1,7 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
-import { footerNav, siteConfig } from '@/config/site'
+import { footerNav, siteConfig, socialLinks } from '@/config/site'
+import { SOCIAL_ICONS } from '@/components/shared/social-icons'
 
 export function Footer() {
   return (
@@ -43,6 +44,25 @@ export function Footer() {
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-600/70" aria-hidden="true" />
                 {siteConfig.address}
               </li>
+            </ul>
+
+            {/* Social profiles — placeholder links until the real URLs exist. */}
+            <ul className="mt-6 flex flex-wrap gap-2" aria-label="Social media">
+              {socialLinks.map((social) => {
+                const SocialIcon = SOCIAL_ICONS[social.id]
+                return (
+                  <li key={social.id}>
+                    <a
+                      href={social.href}
+                      aria-label={social.label}
+                      title={social.label}
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors duration-fast hover:bg-blue-600 hover:text-white"
+                    >
+                      <SocialIcon className="h-4 w-4" />
+                    </a>
+                  </li>
+                )
+              })}
             </ul>
           </div>
 

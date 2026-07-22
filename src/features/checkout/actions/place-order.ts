@@ -36,6 +36,7 @@ import {
 } from '@/lib/data/lab-store'
 import { expandPackage, fastingHoursFor, getLabTestBySlug, getPackageBySlug } from '@/lib/data/lab-catalog'
 
+import { DELIVERY_CITY, DELIVERY_PROVINCE } from '@/config/locations'
 import type { PlaceOrderState } from '@/features/orders/action-state'
 import { useDb } from '@/lib/data/source'
 import { placeOrderDb } from '@/lib/data/db/checkout-db'
@@ -99,8 +100,7 @@ export async function placeOrder(
     lastName: String(formData.get('lastName') ?? ''),
     phone: String(formData.get('phone') ?? ''),
     email: String(formData.get('email') ?? ''),
-    province: String(formData.get('province') ?? ''),
-    city: String(formData.get('city') ?? ''),
+    area: String(formData.get('area') ?? ''),
     address: String(formData.get('address') ?? ''),
     postalCode: String(formData.get('postalCode') ?? ''),
     notes: String(formData.get('notes') ?? ''),
@@ -119,6 +119,13 @@ export async function placeOrder(
   }
 
   const data = parsed.data
+
+  // Version 1 serves Lahore only: the customer chooses an AREA (validated by
+  // the schema); city and province are fixed server-side. Orders keep their
+  // existing shape — the area travels as part of the address line.
+  const deliveryCity: string = DELIVERY_CITY
+  const deliveryProvince: string = DELIVERY_PROVINCE
+  const fullAddress = `${data.address}, ${data.area}`
 
   // Idempotency: a double-click, a retry, or a flaky connection resubmitting
   // must not create two orders. Return the original instead. (In DB mode the
@@ -172,7 +179,7 @@ export async function placeOrder(
   const totals = computeTotals({
     lines,
     coupon: couponRule,
-    context: { city: data.city, paymentMethod: data.paymentMethod === 'cod' ? 'cod' : 'online' },
+    context: { city: deliveryCity, paymentMethod: data.paymentMethod === 'cod' ? 'cod' : 'online' },
     catalog,
   })
 
@@ -200,7 +207,7 @@ export async function placeOrder(
   if (data.paymentMethod === 'cod' && totals.shipping && !totals.shipping.supportsCod) {
     return {
       status: 'error',
-      message: `Cash on delivery is not available for ${data.city}. Please choose an online payment method.`,
+      message: `Cash on delivery is not available for ${deliveryCity}. Please choose an online payment method.`,
       fieldErrors: { paymentMethod: 'Not available in this delivery area' },
     }
   }
@@ -235,10 +242,10 @@ export async function placeOrder(
     const b = bookingParsed.data
     labForm = b
 
-    if (b.collectionMode === 'home' && !supportsHomeCollection(data.city)) {
+    if (b.collectionMode === 'home' && !supportsHomeCollection(deliveryCity)) {
       return {
         status: 'error',
-        message: `Home sample collection is not available in ${data.city} yet.`,
+        message: `Home sample collection is not available in ${deliveryCity} yet.`,
         fieldErrors: { collectionMode: 'Choose a lab visit instead' },
       }
     }
@@ -246,7 +253,7 @@ export async function placeOrder(
 
   if (labForm && !useDb()) {
     const b = labForm
-    const reservation = reserveSlot(data.city, b.slotDate, b.slotId)
+    const reservation = reserveSlot(deliveryCity, b.slotDate, b.slotId)
     if (!reservation.ok) {
       return {
         status: 'error',
@@ -281,8 +288,8 @@ export async function placeOrder(
       patientGender: b.patientGender,
       patientPhone: b.patientPhone,
       collectionMode: b.collectionMode,
-      city: data.city,
-      address: b.collectionMode === 'home' ? data.address : null,
+      city: deliveryCity,
+      address: b.collectionMode === 'home' ? fullAddress : null,
       slotDate: b.slotDate,
       slotId: b.slotId,
       slotLabel,
@@ -342,9 +349,9 @@ export async function placeOrder(
     phone: data.phone,
     email: data.email || null,
 
-    province: data.province,
-    city: data.city,
-    address: data.address,
+    province: deliveryProvince,
+    city: deliveryCity,
+    address: fullAddress,
     postalCode: data.postalCode || null,
     notes: data.notes || null,
 
@@ -408,9 +415,9 @@ export async function placeOrder(
         email: data.email || null,
       },
       address: {
-        line1: data.address,
-        city: data.city,
-        province: data.province,
+        line1: fullAddress,
+        city: deliveryCity,
+        province: deliveryProvince,
         postalCode: data.postalCode || null,
       },
       notes: data.notes || null,

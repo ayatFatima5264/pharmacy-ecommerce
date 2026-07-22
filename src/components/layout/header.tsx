@@ -22,7 +22,7 @@ function TrustBar() {
       <div className="container flex h-8 items-center gap-6 text-caption font-medium text-white/90">
         <span className="flex items-center gap-1.5">
           <Truck className="h-3.5 w-3.5" aria-hidden="true" />
-          Free delivery over Rs 2,000
+          Fast delivery across Lahore
         </span>
         <span className="flex items-center gap-1.5">
           <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />

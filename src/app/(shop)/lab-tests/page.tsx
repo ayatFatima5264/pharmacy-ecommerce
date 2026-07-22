@@ -17,7 +17,8 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'Lab tests — home sample collection',
   description:
-    'Book blood tests with home sample collection across Pakistan. Digital reports from Chughtai Lab, Shaukat Khanum, and Excel Labs.',
+    'Book blood tests with home sample collection across Lahore. Digital reports from Chughtai Lab, Shaukat Khanum, and Excel Labs.',
+  alternates: { canonical: '/lab-tests' },
 }
 
 type SearchParams = Promise<{ category?: string; fasting?: string; lab?: string }>

@@ -30,7 +30,7 @@ export const CMS_DEFAULTS: Record<string, { title: string; body: string }> = {
   },
   shipping: {
     title: 'Shipping Policy',
-    body: `Orders are dispatched from our nearest branch, usually within 24 hours of confirmation.\n\nDelivery estimates by zone are shown at checkout before you pay. Metro areas typically receive orders within 1 business day; upcountry addresses within 2–5 business days.\n\nCold-chain items travel in insulated packaging. If a delivery attempt fails, our courier retries the next business day and our team contacts you.\n\nDelivery is free above the threshold shown in your cart; otherwise the zone rate applies.`,
+    body: `We currently deliver within Lahore only. Orders are dispatched from our branch, usually within 24 hours of confirmation.\n\nDelivery cost and timing are shown at checkout before you pay. Most Lahore addresses receive orders the same or next business day.\n\nCold-chain items travel in insulated packaging. If a delivery attempt fails, our courier retries the next business day and our team contacts you.\n\nDelivery charges are calculated at checkout and always apply to medicine orders. Lab-only bookings carry no delivery fee.`,
   },
   returns: {
     title: 'Return Policy',

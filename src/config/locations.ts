@@ -1,40 +1,83 @@
 /**
- * Pakistani provinces and the cities we deliver to.
+ * Delivery coverage.
  *
- * City is scoped to province so the two can never disagree — a cascading
- * select is the only way to stop "Lahore, Sindh" reaching a courier label.
+ * Version 1 serves LAHORE ONLY — pharmacy delivery and lab bookings alike.
+ * The model is city → areas so that expanding later is a data change (add a
+ * city key with its areas), not a code change. Checkout offers an Area
+ * dropdown scoped to the supported city; anything outside it is refused with
+ * OUTSIDE_DELIVERY_MESSAGE.
  */
 
-export const PROVINCES = [
-  'Punjab',
-  'Sindh',
-  'Khyber Pakhtunkhwa',
-  'Balochistan',
-  'Islamabad Capital Territory',
-  'Gilgit-Baltistan',
-  'Azad Jammu & Kashmir',
-] as const
+export const DELIVERY_AREAS_BY_CITY = {
+  Lahore: [
+    'DHA Phase 1',
+    'DHA Phase 2',
+    'DHA Phase 3',
+    'DHA Phase 4',
+    'DHA Phase 5',
+    'DHA Phase 6',
+    'DHA Phase 7',
+    'DHA Phase 8',
+    'DHA Phase 9',
+    'Bahria Town',
+    'Bahria Orchard',
+    'Johar Town',
+    'Wapda Town',
+    'Model Town',
+    'Garden Town',
+    'Gulberg',
+    'Gulshan-e-Ravi',
+    'Faisal Town',
+    'Township',
+    'Valencia Town',
+    'Lake City',
+    'Askari',
+    'Cantt',
+    'Iqbal Town',
+    'Sabzazar',
+    'Allama Iqbal Town',
+    'Shadman',
+    'Samanabad',
+    'Muslim Town',
+    'Ichhra',
+    'Garhi Shahu',
+    'Jail Road',
+    'Canal View',
+    'Paragon City',
+    'Eden City',
+    'State Life Housing Society',
+    'NFC Society',
+    'LDA Avenue',
+    'Raiwind Road',
+    'Thokar Niaz Baig',
+    'Chungi Amar Sidhu',
+    'Harbanspura',
+    'Mughalpura',
+    'Shahdara',
+    'Misri Shah',
+  ],
+} as const
 
-export type Province = (typeof PROVINCES)[number]
+export type DeliveryCity = keyof typeof DELIVERY_AREAS_BY_CITY
 
-export const CITIES_BY_PROVINCE: Record<Province, string[]> = {
-  Punjab: ['Lahore', 'Faisalabad', 'Rawalpindi', 'Multan', 'Gujranwala', 'Sialkot'],
-  Sindh: ['Karachi', 'Hyderabad', 'Sukkur', 'Larkana'],
-  'Khyber Pakhtunkhwa': ['Peshawar', 'Abbottabad'],
-  Balochistan: ['Quetta'],
-  'Islamabad Capital Territory': ['Islamabad'],
-  'Gilgit-Baltistan': ['Gilgit', 'Skardu'],
-  'Azad Jammu & Kashmir': ['Muzaffarabad'],
+/** Cities the store currently serves. Version 1: Lahore only. */
+export const SUPPORTED_CITIES = Object.keys(DELIVERY_AREAS_BY_CITY) as DeliveryCity[]
+
+/** The single active delivery city, used wherever an order needs a city. */
+export const DELIVERY_CITY: DeliveryCity = 'Lahore'
+
+/** Province the delivery city belongs to — orders still record it. */
+export const DELIVERY_PROVINCE = 'Punjab'
+
+/** Shown whenever an address falls outside the supported coverage. */
+export const OUTSIDE_DELIVERY_MESSAGE = 'Sorry, we currently deliver only within Lahore.'
+
+export function areasFor(city: string): readonly string[] {
+  return DELIVERY_AREAS_BY_CITY[city as DeliveryCity] ?? []
 }
 
-export const ALL_CITIES = Object.values(CITIES_BY_PROVINCE).flat()
-
-export function citiesFor(province: string): string[] {
-  return CITIES_BY_PROVINCE[province as Province] ?? []
-}
-
-export function isCityInProvince(city: string, province: string): boolean {
-  return citiesFor(province).includes(city)
+export function isDeliverableArea(area: string, city: string = DELIVERY_CITY): boolean {
+  return areasFor(city).includes(area)
 }
 
 export const PAYMENT_METHODS = [

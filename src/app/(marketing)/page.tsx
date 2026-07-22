@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -6,6 +7,7 @@ import {
   Banknote,
   FileCheck2,
   FlaskConical,
+  HeartPulse,
   Quote,
   ShieldCheck,
   Star,
@@ -22,6 +24,12 @@ import { cn } from '@/lib/utils'
 // Fully static — nothing here is personalised, so it is generated at build
 // time and revalidated hourly.
 export const revalidate = 3600
+
+export const metadata: Metadata = {
+  title: `${siteConfig.name} — ${siteConfig.tagline}`,
+  description: siteConfig.description,
+  alternates: { canonical: '/' },
+}
 
 const whyChooseUs = [
   {
@@ -53,19 +61,44 @@ const testimonials = [
     quote:
       'Ordered my father’s blood-pressure medicine at night and it arrived the next morning. The pharmacist even called to confirm the dosage.',
     name: 'Amna R.',
-    city: 'Karachi',
+    city: 'DHA, Lahore',
   },
   {
     quote:
       'Booked a full-body checkup for home collection. The phlebotomist came on time and the report was in my email the next day.',
     name: 'Bilal S.',
-    city: 'Lahore',
+    city: 'Johar Town, Lahore',
   },
   {
     quote:
       'Finally a medical store that takes prescriptions seriously. Upload, quick review, delivered sealed. Exactly how it should work.',
     name: 'H. Qureshi',
-    city: 'Islamabad',
+    city: 'Gulberg, Lahore',
+  },
+]
+
+// Evergreen health guidance — static editorial content, refreshed with the
+// codebase rather than a CMS for now.
+const healthTips = [
+  {
+    icon: '💧',
+    title: 'Drink before you feel thirsty',
+    body: 'In Lahore’s heat, aim for 8–10 glasses of water a day. Thirst is a late signal — by then you are already mildly dehydrated.',
+  },
+  {
+    icon: '💊',
+    title: 'Finish the full antibiotic course',
+    body: 'Stopping antibiotics early breeds resistant bacteria. Take the full course exactly as your doctor prescribed, even once you feel better.',
+  },
+  {
+    icon: '🩸',
+    title: 'Check your sugar yearly after 40',
+    body: 'Type 2 diabetes often shows no symptoms for years. A simple fasting blood sugar or HbA1c test once a year catches it early.',
+  },
+  {
+    icon: '🚶',
+    title: '30 minutes of walking counts',
+    body: 'A brisk daily walk lowers blood pressure, improves sugar control, and lifts mood — no gym required. Consistency beats intensity.',
   },
 ]
 
@@ -129,7 +162,7 @@ export default async function HomePage() {
               <span className="text-blue-600">Lab</span>
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-gray-500">
-              Genuine medicines and certified lab tests, delivered across Pakistan — with a
+              Genuine medicines and certified lab tests, delivered across Lahore — with a
               licensed pharmacist checking every prescription.
             </p>
 
@@ -149,7 +182,7 @@ export default async function HomePage() {
 
             <ul className="mt-1 flex flex-wrap gap-x-6 gap-y-2 text-body-sm font-medium text-green-700">
               <li className="flex items-center gap-1.5">
-                <Truck className="h-4 w-4" aria-hidden="true" /> Free delivery over Rs 2,000
+                <Truck className="h-4 w-4" aria-hidden="true" /> Fast delivery across Lahore
               </li>
               <li className="flex items-center gap-1.5">
                 <BadgeCheck className="h-4 w-4" aria-hidden="true" /> Genuine medicine
@@ -352,6 +385,38 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ================= Health tips ================= */}
+      <section className="border-t border-gray-200 bg-gray-50" aria-labelledby="home-tips">
+        <div className="container py-12 md:py-16">
+          <div className="flex items-center justify-center gap-2.5">
+            <HeartPulse className="h-5 w-5 text-blue-600" aria-hidden="true" />
+            <h2 id="home-tips" className="text-center text-h2">
+              Health tips
+            </h2>
+          </div>
+          <p className="mx-auto mt-2 max-w-md text-center text-body-sm text-gray-500">
+            Small habits, checked by our pharmacist, that make a real difference.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {healthTips.map((tip) => (
+              <article
+                key={tip.title}
+                className="flex flex-col gap-3 rounded-md border border-gray-200 bg-white p-6 transition-shadow duration-medium hover:shadow-e1"
+              >
+                <span
+                  className="flex h-11 w-11 items-center justify-center rounded-md bg-blue-50 text-xl"
+                  aria-hidden="true"
+                >
+                  {tip.icon}
+                </span>
+                <h3 className="text-body font-semibold text-gray-900">{tip.title}</h3>
+                <p className="text-body-sm leading-relaxed text-gray-500">{tip.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ================= Newsletter ================= */}
       <section className="bg-blue-600" aria-labelledby="home-newsletter">
         <div className="container flex flex-col items-center gap-4 py-12 text-center md:py-14">
@@ -364,6 +429,27 @@ export default async function HomePage() {
           <NewsletterForm />
         </div>
       </section>
+
+      {/* Structured data: helps search engines show the store as a local
+          pharmacy serving Lahore. Static and public — no user data. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Pharmacy',
+            name: siteConfig.name,
+            description: siteConfig.description,
+            url: siteConfig.url,
+            logo: `${siteConfig.url}${siteConfig.logo}`,
+            telephone: siteConfig.phone,
+            email: siteConfig.email,
+            areaServed: { '@type': 'City', name: 'Lahore' },
+            openingHours: 'Mo-Su 09:00-23:00',
+            paymentAccepted: 'Cash on delivery, JazzCash, Easypaisa, Bank transfer',
+          }),
+        }}
+      />
     </>
   )
 }

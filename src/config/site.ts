@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'AR Medical Store',
   tagline: 'Your trusted online medical store & lab',
   description:
-    'Genuine medicines, lab tests, and health packages delivered across Pakistan. DRAP-licensed medical store with pharmacist-verified prescriptions and cash on delivery.',
+    'Genuine medicines, lab tests, and health packages delivered across Lahore. DRAP-licensed medical store with pharmacist-verified prescriptions and cash on delivery.',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   /** Brand mark shipped in /public — used by the header, auth pages, and admin. */
   logo: '/logo.png',
@@ -15,12 +15,26 @@ export const siteConfig = {
 } as const
 
 export const mainNav = [
-  { label: 'Medicines', href: '/pharmacy' },
+  { label: 'Home', href: '/' },
+  { label: 'Pharmacy', href: '/pharmacy' },
   { label: 'Lab Tests', href: '/lab-tests' },
-  { label: 'Categories', href: '/pharmacy#categories' },
-  { label: 'Offers', href: '/offers' },
+  { label: 'Health Packages', href: '/health-packages' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
+] as const
+
+/**
+ * Social profiles shown in the footer. Placeholder "#" links until the real
+ * profile URLs exist — swap them here, nowhere else.
+ */
+export const socialLinks = [
+  { id: 'facebook', label: 'Facebook', href: '#' },
+  { id: 'instagram', label: 'Instagram', href: '#' },
+  { id: 'linkedin', label: 'LinkedIn', href: '#' },
+  { id: 'youtube', label: 'YouTube', href: '#' },
+  { id: 'tiktok', label: 'TikTok', href: '#' },
+  { id: 'whatsapp', label: 'WhatsApp', href: '#' },
+  { id: 'twitter', label: 'Twitter / X', href: '#' },
 ] as const
 
 export const footerNav = [
@@ -62,7 +76,11 @@ export const footerNav = [
   },
 ] as const
 
-/** Delivery cities, used by checkout and the contact page. */
+/**
+ * City list used ONLY by admin filters (orders/customers/reports may hold
+ * historical data from before the Lahore-only change). Customer-facing
+ * delivery coverage lives in config/locations.ts and is Lahore-only.
+ */
 export const cities = [
   'Karachi',
   'Lahore',

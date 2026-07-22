@@ -5,6 +5,8 @@ import {
   orderConfirmationEmail,
   orderDeliveredEmail,
   orderShippedEmail,
+  prescriptionRejectedEmail,
+  type PrescriptionRejectedPayload,
   type RenderedEmail,
 } from './templates'
 import type { PlacedOrder } from '@/lib/data/orders-store'
@@ -40,6 +42,8 @@ const RENDERERS: Record<string, (payload: unknown) => RenderedEmail> = {
   order_confirmation: (payload) => orderConfirmationEmail(payload as PlacedOrder),
   order_shipped: (payload) => orderShippedEmail(payload as PlacedOrder),
   order_delivered: (payload) => orderDeliveredEmail(payload as PlacedOrder),
+  prescription_rejected: (payload) =>
+    prescriptionRejectedEmail(payload as PrescriptionRejectedPayload),
 }
 
 export interface DrainResult {

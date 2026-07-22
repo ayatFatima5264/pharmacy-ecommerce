@@ -135,6 +135,29 @@ async function main() {
     }
   }
 
+  // --- 3. Pharmacist licence record (demo) ---------------------------------
+  // Prescription decisions must be attributable to a LICENCE, not a login
+  // (prescription_reviews.pharmacist_id → pharmacists). The demo grants the
+  // bootstrap admin a placeholder registration; real pharmacists get real
+  // registration numbers through staff management later.
+  const { deterministicId } = await import('../src/lib/supabase/deterministic-id')
+  const { PHARMACIES } = await import('../src/lib/data/admin-catalog')
+  const { error: pharmacistError } = await db.from('pharmacists').upsert(
+    {
+      user_id: userId,
+      pharmacy_id: deterministicId('pharmacy', PHARMACIES[0]),
+      full_name: 'Administrator',
+      registration_no: 'PCP-DEMO-0001',
+      registration_expiry: '2027-12-31',
+    },
+    { onConflict: 'registration_no' },
+  )
+  if (pharmacistError) {
+    console.warn(`seed-admin: pharmacist record skipped (${pharmacistError.message})`)
+  } else {
+    console.log('seed-admin: pharmacist licence record ensured (PCP-DEMO-0001).')
+  }
+
   console.log(`seed-admin: ${adminEmail} holds the admin role. Sign in at /admin/login.`)
 }
 

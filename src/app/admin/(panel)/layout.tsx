@@ -33,6 +33,8 @@ export const dynamic = 'force-dynamic'
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser('/admin')
   const metrics = await getDashboardMetrics()
+  const { getUnreadCount } = await import('@/features/notifications/queries')
+  const unreadCount = await getUnreadCount()
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-700">
@@ -45,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       />
 
       <div className="lg:pl-60">
-        <AdminUserMenu user={user} />
+        <AdminUserMenu user={user} unreadCount={unreadCount} />
         <main id="admin-main" className="mx-auto max-w-[1400px] p-4 md:p-6">
           {children}
         </main>

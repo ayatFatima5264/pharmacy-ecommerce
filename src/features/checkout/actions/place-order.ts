@@ -377,12 +377,29 @@ export async function placeOrder(
     // requires an account.
     const authUser = await getAuthUser()
 
+    // Prescription upload (optional): a failed upload never blocks the order —
+    // the awaiting_rx gate holds it either way, and the customer can send the
+    // file on WhatsApp. The id attaches to the order's Rx lines in place_order.
+    let prescriptionId: string | null = null
+    const rxFile = formData.get('prescriptionFile')
+    if (totals.hasPrescriptionItems && rxFile instanceof File && rxFile.size > 0) {
+      const { uploadPrescription } = await import('@/features/prescriptions/upload')
+      const uploaded = await uploadPrescription({
+        file: rxFile,
+        userId: authUser?.id ?? null,
+        patientName: `${data.firstName} ${data.lastName}`,
+      })
+      if ('id' in uploaded) prescriptionId = uploaded.id
+      else console.warn('[checkout] prescription upload skipped:', uploaded.error)
+    }
+
     // One RPC, one transaction: order, items, FEFO stock, slot claim, coupon
     // ledger, payment row, status history, and the confirmation email are all
     // written by place_order (0017) or not at all. The snapshot above becomes
     // the email's render payload; the SQL injects the real order number.
     const result = await placeOrderDb({
       userId: authUser?.id ?? null,
+      prescriptionId,
       idempotencyKey: data.idempotencyKey,
       contact: {
         firstName: data.firstName,

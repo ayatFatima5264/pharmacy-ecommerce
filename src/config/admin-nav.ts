@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Boxes,
+  ClipboardCheck,
   FileText,
   FlaskConical,
   Layers,
@@ -36,7 +37,8 @@ export const adminNav = [
   {
     group: 'Sales',
     items: [
-      { label: 'Orders', href: '/admin/orders', icon: ShoppingBag, badge: 'awaitingRx' },
+      { label: 'Orders', href: '/admin/orders', icon: ShoppingBag },
+      { label: 'Prescriptions', href: '/admin/prescriptions', icon: ClipboardCheck, badge: 'awaitingRx' },
       { label: 'Customers', href: '/admin/customers', icon: Users },
       { label: 'Coupons', href: '/admin/coupons', icon: Tag },
       { label: 'Shipping', href: '/admin/shipping', icon: Truck },

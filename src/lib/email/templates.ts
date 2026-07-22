@@ -460,3 +460,49 @@ export function labBookingEmail(booking: LabBooking, customerFirstName: string):
     text,
   }
 }
+
+/** Sent when a pharmacist rejects the prescription behind an order. */
+export interface PrescriptionRejectedPayload {
+  orderNumber: string
+  customerName: string
+  reason: string
+}
+
+export function prescriptionRejectedEmail(p: PrescriptionRejectedPayload): RenderedEmail {
+  const html = emailShell({
+    preheader: `We need a new prescription for order ${p.orderNumber}.`,
+    heading: 'About your prescription',
+    intro: `${p.customerName}, our pharmacist reviewed the prescription for order ${p.orderNumber} and could not approve it.`,
+    body:
+      block(
+        panel(
+          `<strong style="color:${BRAND.amber};">Reason:</strong> <span style="color:${BRAND.amber};">${esc(p.reason)}</span>`,
+          'warning',
+        ),
+        12,
+      ) +
+      block(
+        `<div style="font-family:${FONT};font-size:14px;color:${BRAND.muted};line-height:1.6;">
+          Your order is on hold. Reply to this email with a clearer photo of a valid
+          prescription, or send it to us on WhatsApp at ${esc(siteConfig.phone)} —
+          our pharmacist will re-review it right away. If we cannot reach you, the
+          order will be cancelled and nothing is charged.
+        </div>`,
+        8,
+      ) +
+      block(button('Track your order', trackUrl(p.orderNumber)), 16),
+  })
+
+  const text = [
+    `${p.customerName}, our pharmacist could not approve the prescription for order ${p.orderNumber}.`,
+    '',
+    `Reason: ${p.reason}`,
+    '',
+    `Reply with a clearer photo of a valid prescription, or send it on WhatsApp at ${siteConfig.phone}.`,
+    'If we cannot reach you, the order will be cancelled and nothing is charged.',
+    '',
+    `Track your order: ${trackUrl(p.orderNumber)}`,
+  ].join('\n')
+
+  return { subject: `Action needed on order ${p.orderNumber} — prescription`, html, text }
+}

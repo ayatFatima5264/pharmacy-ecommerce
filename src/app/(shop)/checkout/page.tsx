@@ -317,8 +317,9 @@ export default function CheckoutPage() {
                 <span className="text-body-sm text-gray-500">JPG, PNG or PDF, up to 10 MB</span>
                 <input
                   id="prescription"
+                  name="prescriptionFile"
                   type="file"
-                  accept="image/*,application/pdf"
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
                   capture="environment"
                   className="sr-only"
                   onChange={(e) => setPrescriptionName(e.target.files?.[0]?.name ?? null)}

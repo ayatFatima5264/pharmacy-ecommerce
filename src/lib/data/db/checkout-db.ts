@@ -33,6 +33,8 @@ export interface BookingInput {
 export interface PlaceOrderDbInput {
   /** Authenticated customer, or null for guests. */
   userId: string | null
+  /** Uploaded prescription to attach to the order's Rx lines, if any. */
+  prescriptionId?: string | null
   idempotencyKey: string
   contact: { firstName: string; lastName: string; phone: string; email: string | null }
   address: { line1: string; city: string; province: string; postalCode: string | null }
@@ -229,6 +231,7 @@ export async function placeOrderDb(input: PlaceOrderDbInput): Promise<PlaceOrder
   const payload = {
     idempotency_key: input.idempotencyKey,
     user_id: input.userId,
+    prescription_id: input.prescriptionId ?? null,
     pharmacy_id: items.some((i) => i.kind === 'product') ? mainPharmacyId() : null,
     contact: { email: input.contact.email, phone: input.contact.phone },
     address: {

@@ -17,7 +17,7 @@
     "check:db": "tsx scripts/db-check.ts",
     "check": "npm run typecheck && npm run check:schema && npm run check:cart && npm run check:checkout && npm run check:lab && npm run check:security && npm run check:migrations && npm run check:db",
     "db:types": "npx supabase gen types typescript --linked --schema public > src/lib/supabase/types.gen.ts",
-    "seed:admin": "tsx scripts/seed-admin.ts",
+    "seed:admin": "tsx --conditions=react-server scripts/seed-admin.ts",
     "seed:catalog": "tsx --conditions=react-server scripts/seed-catalog.ts",
     "smoke": "tsx --conditions=react-server scripts/smoke-e2e.ts",
     "db:migrate": "tsx scripts/db-migrate.ts"

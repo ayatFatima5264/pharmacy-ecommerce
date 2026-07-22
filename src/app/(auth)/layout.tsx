@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { siteConfig } from '@/config/site'
 
@@ -14,14 +15,21 @@ import { siteConfig } from '@/config/site'
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-[420px]">
+      <div className="w-full max-w-[460px]">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <Link
             href="/"
-            className="flex h-11 w-11 items-center justify-center rounded-md bg-blue-600 text-lg font-bold text-white"
+            className="rounded-md transition-opacity duration-fast hover:opacity-80"
             aria-label={`${siteConfig.name} home`}
           >
-            S
+            <Image
+              src={siteConfig.logo}
+              alt=""
+              width={56}
+              height={56}
+              priority
+              className="h-14 w-14 object-contain"
+            />
           </Link>
         </div>
         {children}

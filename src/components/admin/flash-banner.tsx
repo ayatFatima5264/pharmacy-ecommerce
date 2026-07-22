@@ -20,9 +20,11 @@ export function FlashBanner({
     <div
       role="status"
       aria-live="polite"
-      className="mb-4 flex items-center gap-2.5 rounded-sm bg-green-50 p-3.5 text-[13.5px] text-green-700"
+      className="mb-4 flex items-center gap-3 rounded-md border border-green-600/15 bg-green-50 px-4 py-3.5 text-[13.5px] font-medium text-green-700"
     >
-      <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-600 text-white">
+        <Check className="h-3.5 w-3.5" aria-hidden="true" />
+      </span>
       {messages[hit]}
     </div>
   )

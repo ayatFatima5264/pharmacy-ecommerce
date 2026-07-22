@@ -27,12 +27,16 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Fi
 async function Results({ params }: { params: Record<string, string | string[] | undefined> }) {
   const products = await getProducts(parseFilters(params))
   return (
-    <>
-      <p className="mb-5 text-body-sm text-gray-500" aria-live="polite">
-        {products.length} {products.length === 1 ? 'product' : 'products'}
-      </p>
-      <ProductGrid products={products} />
-    </>
+    <ProductGrid
+      products={products}
+      toolbar={
+        <p className="text-body-sm text-gray-500" aria-live="polite">
+          <span className="font-semibold text-gray-900">{products.length}</span>{' '}
+          {products.length === 1 ? 'product' : 'products'}
+        </p>
+      }
+      controls={<DesktopSort />}
+    />
   )
 }
 
@@ -41,23 +45,20 @@ export default async function PharmacyPage({ searchParams }: { searchParams: Sea
   const brands = await getBrands()
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 md:py-12">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Pharmacy' }]} />
 
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-h1">Pharmacy</h1>
-          <p className="mt-2 max-w-2xl text-body text-gray-500">
-            Genuine medicines, supplements, and home medical devices. Prescription items are
-            dispensed only after a licensed pharmacist reviews your prescription.
-          </p>
-        </div>
-        <DesktopSort />
+      <div className="mb-8">
+        <h1 className="text-h1">Pharmacy</h1>
+        <p className="mt-2 max-w-3xl text-body text-gray-500">
+          Genuine medicines, supplements, and home medical devices. Prescription items are
+          dispensed only after a licensed pharmacist reviews your prescription.
+        </p>
       </div>
 
       {/* Rendered once: the component emits the mobile control bar, the mobile
           sheet, and the desktop sidebar, each visible at its own breakpoint. */}
-      <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[260px_1fr]">
+      <div className="grid items-start gap-x-8 gap-y-6 lg:grid-cols-[260px_1fr]">
         <ProductFilters brands={brands} />
         <div>
           {/* Suspense key restarts the boundary on filter change, so the

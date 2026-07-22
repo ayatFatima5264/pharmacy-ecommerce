@@ -15,7 +15,7 @@ export default function RegisterPage() {
           Track orders, download lab reports, and check out faster
         </p>
       </div>
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-e1 sm:p-8">
         <RegisterForm />
       </div>
     </>

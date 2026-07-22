@@ -18,7 +18,7 @@ export default function LoginPage() {
           Sign in to your {siteConfig.name} account
         </p>
       </div>
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-e1 sm:p-8">
         <Suspense fallback={<div className="h-72 animate-pulse rounded-sm bg-gray-100" />}>
           <CustomerLoginForm />
         </Suspense>

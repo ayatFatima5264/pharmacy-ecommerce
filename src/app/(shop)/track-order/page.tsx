@@ -35,16 +35,26 @@ function TrackOrderContent() {
   }
 
   return (
-    <div className="container max-w-3xl py-8">
+    <div className="bg-gray-50">
+    <div className="container max-w-3xl py-8 md:py-12">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Track Order' }]} />
 
-      <h1 className="text-h1">Track your order</h1>
-      <p className="mt-2 text-body text-gray-500">
-        Enter your order number and the mobile number you ordered with. Both are needed — it is
-        what keeps your order details private.
-      </p>
+      <div className="mx-auto max-w-xl text-center">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+          <PackageSearch className="h-7 w-7" aria-hidden="true" />
+        </span>
+        <h1 className="mt-4 text-h1">Track your order</h1>
+        <p className="mt-2 text-body text-gray-500">
+          Enter your order number and the mobile number you ordered with. Both are needed — it is
+          what keeps your order details private.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} noValidate className="mt-7 rounded-md border border-gray-200 p-5">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="mx-auto mt-7 max-w-xl rounded-lg border border-gray-200 bg-white p-6 shadow-e1 md:p-8"
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Order number" htmlFor="orderNumber" required>
             <Input
@@ -78,14 +88,14 @@ function TrackOrderContent() {
           </p>
         )}
 
-        <Button type="submit" loading={pending} className="mt-5">
+        <Button type="submit" size="lg" full loading={pending} className="mt-5">
           {pending ? 'Looking up order' : 'Track order'}
         </Button>
       </form>
 
       {order && (
         <section className="mt-8 animate-fade-in" aria-live="polite">
-          <div className="rounded-md border border-gray-200">
+          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-e1">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 p-5">
               <div>
                 <h2 className="tabular text-h3">{order.orderNumber}</h2>
@@ -132,8 +142,10 @@ function TrackOrderContent() {
                       <div className="flex flex-col items-center">
                         <span
                           className={cn(
-                            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
-                            step.done ? 'bg-green-600 text-white' : 'border-2 border-gray-200 bg-white',
+                            'flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
+                            step.done
+                              ? 'bg-blue-600 text-white ring-4 ring-blue-50'
+                              : 'border-2 border-gray-200 bg-white',
                           )}
                         >
                           {step.done ? (
@@ -144,7 +156,7 @@ function TrackOrderContent() {
                         </span>
                         {!isLast && (
                           <span
-                            className={cn('w-0.5 flex-1', step.done ? 'bg-green-600' : 'bg-gray-200')}
+                            className={cn('w-0.5 flex-1', step.done ? 'bg-blue-600' : 'bg-gray-200')}
                             aria-hidden="true"
                           />
                         )}
@@ -208,7 +220,7 @@ function TrackOrderContent() {
       )}
 
       {!order && !error && (
-        <div className="mt-8 flex flex-col items-center gap-3 rounded-md border border-gray-200 px-6 py-14 text-center">
+        <div className="mx-auto mt-8 flex max-w-xl flex-col items-center gap-3 rounded-lg border border-dashed border-gray-200 bg-white/60 px-6 py-14 text-center">
           <PackageSearch className="h-10 w-10 text-gray-400" aria-hidden="true" />
           <h2 className="text-h3">Your order status will appear here</h2>
           <p className="max-w-sm text-body text-gray-500">
@@ -216,6 +228,7 @@ function TrackOrderContent() {
           </p>
         </div>
       )}
+    </div>
     </div>
   )
 }

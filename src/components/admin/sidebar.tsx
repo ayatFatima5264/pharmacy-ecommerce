@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ExternalLink, Menu, X } from 'lucide-react'
@@ -18,7 +19,7 @@ function NavLinks({ badges, onNavigate }: { badges: Badges; onNavigate?: () => v
       {adminNav.map((section, index) => (
         <div key={section.group ?? `section-${index}`}>
           {section.group && (
-            <h2 className="mb-1.5 px-3 text-[10.5px] font-bold uppercase tracking-[0.09em] text-gray-400">
+            <h2 className="mb-2 px-3 text-[10.5px] font-bold uppercase tracking-[0.1em] text-gray-400">
               {section.group}
             </h2>
           )}
@@ -37,14 +38,20 @@ function NavLinks({ badges, onNavigate }: { badges: Badges; onNavigate?: () => v
                     onClick={onNavigate}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'flex min-h-9 items-center gap-2.5 rounded-sm px-3 py-1.5 text-[13.5px] font-medium transition-colors duration-fast',
+                      'relative flex min-h-9 items-center gap-2.5 rounded-sm px-3 py-2 text-[13.5px] font-medium transition-colors duration-fast',
                       active
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+                        ? 'bg-blue-50 font-semibold text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900',
                     )}
                   >
+                    {active && (
+                      <span
+                        className="absolute inset-y-1.5 left-0 w-[3px] rounded-r-full bg-blue-600"
+                        aria-hidden="true"
+                      />
+                    )}
                     <Icon
-                      className={cn('h-4 w-4 shrink-0', active ? 'text-white' : 'text-gray-400')}
+                      className={cn('h-4 w-4 shrink-0', active ? 'text-blue-600' : 'text-gray-400')}
                       aria-hidden="true"
                     />
                     <span className="flex-1 truncate">{item.label}</span>
@@ -52,7 +59,7 @@ function NavLinks({ badges, onNavigate }: { badges: Badges; onNavigate?: () => v
                       <span
                         className={cn(
                           'tabular flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold',
-                          active ? 'bg-white/20 text-white' : 'bg-amber-600/[0.15] text-amber-700',
+                          active ? 'bg-blue-600 text-white' : 'bg-amber-600/[0.15] text-amber-700',
                         )}
                       >
                         {count}
@@ -93,7 +100,7 @@ export function AdminSidebar({ badges }: { badges: Badges }) {
 
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-gray-200 bg-white lg:flex">
-        <div className="flex h-14 items-center border-b border-gray-200 px-4">
+        <div className="flex h-16 items-center border-b border-gray-100 px-4">
           <Brand />
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -135,14 +142,18 @@ export function AdminSidebar({ badges }: { badges: Badges }) {
 
 function Brand() {
   return (
-    <Link href="/admin" className="flex items-center gap-2 rounded-sm">
-      <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 text-[13px] font-bold text-white">
-        S
-      </span>
+    <Link href="/admin" className="flex items-center gap-2.5 rounded-sm">
+      <Image
+        src={siteConfig.logo}
+        alt=""
+        width={32}
+        height={32}
+        className="h-8 w-8 shrink-0 rounded-md object-contain"
+      />
       <span className="text-[14px] font-bold tracking-[-0.01em] text-gray-900">
         {siteConfig.name}
       </span>
-      <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-gray-500">
+      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-blue-600">
         Admin
       </span>
     </Link>

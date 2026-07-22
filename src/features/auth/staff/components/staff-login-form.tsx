@@ -33,6 +33,7 @@ export function StaffLoginForm() {
           autoFocus
           aria-invalid={!!fieldError(state, 'email')}
           required
+          className="h-12"
         />
       </Field>
 
@@ -44,6 +45,7 @@ export function StaffLoginForm() {
           autoComplete="current-password"
           aria-invalid={!!fieldError(state, 'password')}
           required
+          className="h-12"
         />
       </Field>
 

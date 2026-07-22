@@ -11,7 +11,9 @@ const config: Config = {
     container: {
       center: true,
       padding: { DEFAULT: '1rem', md: '1.5rem', lg: '2rem' },
-      screens: { '2xl': '1280px' },
+      // Wide, modern canvas: content breathes at 1400px instead of pooling
+      // whitespace at the sides on large screens.
+      screens: { '2xl': '1400px' },
     },
     extend: {
       colors: {

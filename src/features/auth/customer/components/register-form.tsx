@@ -32,6 +32,7 @@ export function RegisterForm() {
           autoFocus
           aria-invalid={!!fieldError(state, 'fullName')}
           required
+          className="h-12"
         />
       </Field>
 
@@ -43,6 +44,7 @@ export function RegisterForm() {
           autoComplete="username"
           aria-invalid={!!fieldError(state, 'email')}
           required
+          className="h-12"
         />
       </Field>
 
@@ -60,6 +62,7 @@ export function RegisterForm() {
           autoComplete="new-password"
           aria-invalid={!!fieldError(state, 'password')}
           required
+          className="h-12"
         />
       </Field>
 

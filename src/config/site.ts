@@ -1,11 +1,13 @@
 export const siteConfig = {
-  name: 'Sehat Store',
-  tagline: 'Healthcare, delivered.',
+  name: 'AR Medical Store',
+  tagline: 'Your trusted online pharmacy & lab',
   description:
     'Genuine medicines, lab tests, and health packages delivered across Pakistan. DRAP-licensed pharmacy with pharmacist-verified prescriptions and cash on delivery.',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  /** Brand mark shipped in /public — used by the header, auth pages, and admin. */
+  logo: '/logo.png',
   phone: '+92 21 111 734 728',
-  email: 'care@sehatstore.pk',
+  email: 'care@armedicalstore.pk',
   address: 'Plot 24, Shahrah-e-Faisal, Karachi, Sindh 75350',
   drapLicense: 'DRAP-PH-2024-11482',
   pharmacist: 'Dr. Ayesha Siddiqui, Pharm-D (PCP Reg. 41209)',
@@ -15,8 +17,8 @@ export const siteConfig = {
 export const mainNav = [
   { label: 'Pharmacy', href: '/pharmacy' },
   { label: 'Lab Tests', href: '/lab-tests' },
-  { label: 'Health Packages', href: '/health-packages' },
-  { label: 'Track Order', href: '/track-order' },
+  { label: 'Categories', href: '/pharmacy#categories' },
+  { label: 'Offers', href: '/offers' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ] as const

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
-import { SearchX } from 'lucide-react'
+import { FlaskConical, HeartPulse, Pill, SearchX, type LucideIcon } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
-import { EmptyState, SectionHeading } from '@/components/shared/primitives'
+import { EmptyState } from '@/components/shared/primitives'
 import { ProductGridSkeleton } from '@/components/ui/skeleton'
 import { LabTestCard, PackageCard, ProductCard } from '@/features/catalog/components/cards'
 import { search } from '@/lib/data/queries'
@@ -16,6 +16,21 @@ export const metadata: Metadata = {
 }
 
 type SearchParams = Promise<{ q?: string }>
+
+/** Section header: icon tile + title + result count as a small pill. */
+function ResultsHeader({ icon: Icon, title, count }: { icon: LucideIcon; title: string; count: number }) {
+  return (
+    <div className="mb-5 flex flex-wrap items-center gap-3">
+      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+        <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+      </span>
+      <h2 className="text-h2">{title}</h2>
+      <span className="tabular rounded-full bg-blue-50 px-2.5 py-0.5 text-caption font-semibold text-blue-700">
+        {count}
+      </span>
+    </div>
+  )
+}
 
 async function Results({ query }: { query: string }) {
   const { products, tests, packages, total } = await search(query)
@@ -41,15 +56,16 @@ async function Results({ query }: { query: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-14">
-      <p className="text-body-sm text-gray-500" aria-live="polite">
-        {total} {total === 1 ? 'result' : 'results'} for &ldquo;{query}&rdquo;
+    <div className="flex flex-col gap-12 md:gap-14">
+      <p className="-mb-6 text-body-sm text-gray-500" aria-live="polite">
+        <span className="font-semibold text-gray-900">{total}</span>{' '}
+        {total === 1 ? 'result' : 'results'} for &ldquo;{query}&rdquo;
       </p>
 
       {products.length > 0 && (
-        <section>
-          <SectionHeading title={`Medicines & products (${products.length})`} />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+        <section aria-label="Medicines and products">
+          <ResultsHeader icon={Pill} title="Medicines & products" count={products.length} />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -58,9 +74,9 @@ async function Results({ query }: { query: string }) {
       )}
 
       {tests.length > 0 && (
-        <section>
-          <SectionHeading title={`Lab tests (${tests.length})`} />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section aria-label="Lab tests">
+          <ResultsHeader icon={FlaskConical} title="Lab tests" count={tests.length} />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {tests.map((test) => (
               <LabTestCard key={test.id} test={test} />
             ))}
@@ -69,9 +85,9 @@ async function Results({ query }: { query: string }) {
       )}
 
       {packages.length > 0 && (
-        <section>
-          <SectionHeading title={`Health packages (${packages.length})`} />
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <section aria-label="Health packages">
+          <ResultsHeader icon={HeartPulse} title="Health packages" count={packages.length} />
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {packages.map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} testCount={pkg.includedTestSlugs.length} />
             ))}
@@ -87,8 +103,15 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const query = q?.trim() ?? ''
 
   return (
-    <div className="container py-8">
-      <h1 className="mb-8 text-h1">{query ? `Results for “${query}”` : 'Search'}</h1>
+    <div className="container py-8 md:py-12">
+      <div className="mb-8">
+        <h1 className="text-h1">{query ? `Results for “${query}”` : 'Search'}</h1>
+        {query && (
+          <p className="mt-2 max-w-3xl text-body text-gray-500">
+            Across medicines, lab tests, and health packages.
+          </p>
+        )}
+      </div>
 
       {!query ? (
         <EmptyState

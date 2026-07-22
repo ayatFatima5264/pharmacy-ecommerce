@@ -1,11 +1,13 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, Search, ShieldCheck, ShoppingCart, Truck, X } from 'lucide-react'
+import { Heart, Menu, Search, ShieldCheck, ShoppingCart, Truck, User, X } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { useCart } from '@/features/cart/cart-context'
+import { useWishlist } from '@/features/wishlist/use-wishlist'
 import { mainNav, siteConfig } from '@/config/site'
 import { cn } from '@/lib/utils'
 
@@ -16,15 +18,15 @@ import { cn } from '@/lib/utils'
  */
 function TrustBar() {
   return (
-    <div className="hidden border-b border-gray-200 bg-gray-50 md:block">
-      <div className="container flex h-8 items-center gap-6 text-caption text-gray-500">
+    <div className="hidden bg-blue-600 md:block">
+      <div className="container flex h-8 items-center gap-6 text-caption font-medium text-white/90">
         <span className="flex items-center gap-1.5">
           <Truck className="h-3.5 w-3.5" aria-hidden="true" />
           Free delivery over Rs 2,000
         </span>
         <span className="flex items-center gap-1.5">
           <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-          DRAP-licensed pharmacy · {siteConfig.drapLicense}
+          DRAP-licensed pharmacy · 100% genuine medicines
         </span>
         <span className="ml-auto">{siteConfig.hours}</span>
       </div>
@@ -64,6 +66,27 @@ function SearchForm({ autoFocus, onSubmit }: { autoFocus?: boolean; onSubmit?: (
         className="h-11 w-full rounded-sm border border-gray-200 bg-white pl-10 pr-3.5 text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none focus:ring-[3px] focus:ring-blue-100"
       />
     </form>
+  )
+}
+
+function WishlistLink() {
+  const { count, hydrated } = useWishlist()
+  return (
+    <Link
+      href="/wishlist"
+      aria-label={`Wishlist${hydrated && count ? ` (${count} saved)` : ''}`}
+      className="relative flex h-11 w-11 items-center justify-center rounded-sm text-gray-700 transition-colors duration-fast hover:bg-blue-50 hover:text-blue-600"
+    >
+      <Heart className="h-5 w-5" aria-hidden="true" />
+      {hydrated && count > 0 && (
+        <span
+          className="tabular absolute right-0.5 top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white"
+          aria-hidden="true"
+        >
+          {count > 99 ? '99+' : count}
+        </span>
+      )}
+    </Link>
   )
 }
 
@@ -130,12 +153,17 @@ export function Header() {
           <Menu className="h-5 w-5" aria-hidden="true" />
         </button>
 
-        <Link href="/" className="flex shrink-0 items-center gap-2 rounded-sm">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-base font-bold text-white">
-            S
-          </span>
-          <span className="text-[17px] font-bold tracking-[-0.015em] text-gray-900">
-            {siteConfig.name}
+        <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-sm">
+          <Image
+            src={siteConfig.logo}
+            alt=""
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9 rounded-md object-contain"
+          />
+          <span className="hidden text-[17px] font-bold leading-tight tracking-[-0.015em] text-gray-900 sm:block">
+            AR Medical <span className="text-blue-600">Store</span>
           </span>
         </Link>
 
@@ -143,7 +171,7 @@ export function Header() {
           <SearchForm />
         </div>
 
-        <div className="ml-auto flex items-center gap-1 md:ml-0">
+        <div className="ml-auto flex items-center gap-0.5 md:ml-0">
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
@@ -152,6 +180,14 @@ export function Header() {
           >
             <Search className="h-5 w-5" aria-hidden="true" />
           </button>
+          <Link
+            href="/account"
+            className="hidden h-11 items-center gap-2 rounded-sm px-3 text-body-sm font-semibold text-gray-700 transition-colors duration-fast hover:bg-blue-50 hover:text-blue-600 md:flex"
+          >
+            <User className="h-5 w-5" aria-hidden="true" />
+            <span className="hidden lg:inline">Account</span>
+          </Link>
+          <WishlistLink />
           <CartLink />
         </div>
       </div>

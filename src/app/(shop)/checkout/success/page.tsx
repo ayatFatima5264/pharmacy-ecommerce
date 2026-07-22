@@ -1,6 +1,18 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Check, Landmark, Lock, Mail, MapPin, Microscope, Truck, Utensils } from 'lucide-react'
+import {
+  ArrowRight,
+  Check,
+  Landmark,
+  Lock,
+  Mail,
+  MapPin,
+  Microscope,
+  PackageSearch,
+  Truck,
+  UserPlus,
+  Utensils,
+} from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { findOrderByNumber } from '@/lib/data/orders-store'
 import { findBookingsByOrder } from '@/lib/data/lab-store'
@@ -30,11 +42,13 @@ export default async function CheckoutSuccessPage({
   if (!order) {
     return (
       <div className="container max-w-2xl py-16 text-center">
-        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-green-600">
-          <Check className="h-8 w-8" aria-hidden="true" />
+        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 text-white ring-8 ring-blue-50">
+          <Check className="h-10 w-10" aria-hidden="true" />
         </span>
         <h1 className="mt-6 text-h1">Order placed</h1>
-        <p className="tabular mt-2 text-body text-gray-500">Order {orderNumber}</p>
+        <p className="tabular mt-3 inline-block rounded-full bg-gray-50 px-4 py-1.5 text-h3 text-gray-900">
+          {orderNumber}
+        </p>
         <p className="mx-auto mt-4 max-w-md text-body text-gray-500">
           We could not load the full details of this order right now, but it has been placed.
           Call us on {siteConfig.phone} and quote your order number if you need anything.
@@ -53,14 +67,17 @@ export default async function CheckoutSuccessPage({
   const bookings = findBookingsByOrder(order.orderNumber)
 
   return (
-    <div className="container max-w-2xl py-16">
+    <div className="bg-gray-50">
+    <div className="container max-w-2xl py-12 md:py-16">
       <div className="text-center">
-        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-green-600">
-          <Check className="h-8 w-8" aria-hidden="true" />
+        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 text-white ring-8 ring-blue-50">
+          <Check className="h-10 w-10" aria-hidden="true" />
         </span>
 
         <h1 className="mt-6 text-h1">Order confirmed</h1>
-        <p className="tabular mt-2 text-body text-gray-500">Order {order.orderNumber}</p>
+        <p className="tabular mt-3 inline-block rounded-full border border-gray-200 bg-white px-4 py-1.5 text-h3 text-gray-900 shadow-e1">
+          {order.orderNumber}
+        </p>
         <p className="mx-auto mt-4 max-w-md text-body text-gray-500">
           Thanks {order.firstName} — we have your order and will send updates to {order.phone}.
         </p>
@@ -68,7 +85,7 @@ export default async function CheckoutSuccessPage({
 
       {/* Each fulfilment path is confirmed separately: one order can carry two
           different promises. */}
-      <div className="mt-9 flex flex-col gap-px overflow-hidden rounded-md border border-gray-200 bg-gray-200 text-left">
+      <div className="mt-9 flex flex-col gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 text-left shadow-e1">
         <div className="flex items-start gap-4 bg-blue-50 p-5">
           <Truck className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" aria-hidden="true" />
           <div>
@@ -160,7 +177,7 @@ export default async function CheckoutSuccessPage({
       </div>
 
       {/* Order summary */}
-      <div className="mt-6 rounded-md border border-gray-200 p-5">
+      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-5 shadow-e1 md:p-6">
         <h2 className="mb-4 text-h3">Order summary</h2>
         <ul className="flex flex-col gap-3 border-b border-gray-200 pb-4">
           {order.items.map((item) => (
@@ -225,13 +242,42 @@ export default async function CheckoutSuccessPage({
         )}
       </div>
 
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
+      {/* Next steps */}
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <Link
           href={`/track-order?order=${encodeURIComponent(order.orderNumber)}`}
-          className={cn(buttonVariants({ variant: 'primary', size: 'lg' }))}
+          className="group rounded-lg border border-gray-200 bg-white p-5 shadow-e1 transition-all duration-medium hover:-translate-y-0.5 hover:border-blue-600/30 hover:shadow-e2"
         >
-          Track order
+          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+            <PackageSearch className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <span className="mt-3 flex items-center gap-1.5 text-body font-semibold text-gray-900 group-hover:text-blue-600">
+            Track order
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <span className="mt-1 block text-body-sm text-gray-500">
+            Follow every step from confirmation to delivery.
+          </span>
         </Link>
+
+        <Link
+          href="/register"
+          className="group rounded-lg border border-gray-200 bg-white p-5 shadow-e1 transition-all duration-medium hover:-translate-y-0.5 hover:border-blue-600/30 hover:shadow-e2"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+            <UserPlus className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <span className="mt-3 flex items-center gap-1.5 text-body font-semibold text-gray-900 group-hover:text-blue-600">
+            Create an account
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <span className="mt-1 block text-body-sm text-gray-500">
+            See your order history and check out faster next time.
+          </span>
+        </Link>
+      </div>
+
+      <div className="mt-6 flex justify-center">
         <Link href="/pharmacy" className={cn(buttonVariants({ variant: 'secondary', size: 'lg' }))}>
           Continue shopping
         </Link>
@@ -246,6 +292,7 @@ export default async function CheckoutSuccessPage({
           {siteConfig.phone}
         </a>
       </p>
+    </div>
     </div>
   )
 }

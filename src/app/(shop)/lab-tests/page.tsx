@@ -47,7 +47,7 @@ export default async function LabTestsPage({ searchParams }: { searchParams: Sea
     : null
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 md:py-12">
       <Breadcrumbs
         items={[
           { label: 'Home', href: '/' },
@@ -58,18 +58,21 @@ export default async function LabTestsPage({ searchParams }: { searchParams: Sea
       />
 
       <h1 className="text-h1">{activeCategory ? activeCategory.name : 'Lab tests'}</h1>
-      <p className="mt-2 max-w-2xl text-body text-gray-500">
+      <p className="mt-2 max-w-3xl text-body text-gray-500">
         {activeCategory
           ? activeCategory.description
           : 'Book a test online and a phlebotomist will collect your sample at home. Reports arrive digitally, usually within 24 hours.'}
       </p>
 
       {!activeCategory && (
-        <ul className="mt-8 grid gap-6 border-y border-gray-200 py-7 sm:grid-cols-3">
+        <ul className="mt-8 grid gap-4 sm:grid-cols-3">
           {points.map((point) => {
             const Icon = point.icon
             return (
-              <li key={point.title} className="flex gap-3.5">
+              <li
+                key={point.title}
+                className="flex gap-3.5 rounded-md border border-gray-200 bg-white p-5 transition-shadow duration-medium hover:shadow-e1"
+              >
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
@@ -92,14 +95,16 @@ export default async function LabTestsPage({ searchParams }: { searchParams: Sea
               href="/lab-tests"
               aria-current={!params.category ? 'page' : undefined}
               className={cn(
-                'flex min-h-11 items-center gap-2 rounded-full border px-4 text-body-sm font-semibold',
+                'flex min-h-11 items-center gap-2 rounded-full border px-4 text-body-sm font-semibold transition-colors duration-fast',
                 !params.category
-                  ? 'border-blue-600 bg-blue-50 text-blue-700'
-                  : 'border-gray-200 text-gray-700 hover:border-gray-400',
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-e1'
+                  : 'border-gray-200 bg-white text-gray-700 hover:border-blue-600/40 hover:text-blue-700',
               )}
             >
               All tests
-              <span className="tabular text-gray-500">{allTests.length}</span>
+              <span className={cn('tabular', !params.category ? 'text-blue-100' : 'text-gray-500')}>
+                {allTests.length}
+              </span>
             </Link>
           </li>
           {labCategories.map((category) => {
@@ -110,15 +115,17 @@ export default async function LabTestsPage({ searchParams }: { searchParams: Sea
                   href={`/lab-tests?category=${category.slug}`}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'flex min-h-11 items-center gap-2 rounded-full border px-4 text-body-sm font-semibold',
+                    'flex min-h-11 items-center gap-2 rounded-full border px-4 text-body-sm font-semibold transition-colors duration-fast',
                     active
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 text-gray-700 hover:border-gray-400',
+                      ? 'border-blue-600 bg-blue-600 text-white shadow-e1'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-blue-600/40 hover:text-blue-700',
                   )}
                 >
                   <span aria-hidden="true">{category.icon}</span>
                   {category.name}
-                  <span className="tabular text-gray-500">{counts[category.slug] ?? 0}</span>
+                  <span className={cn('tabular', active ? 'text-blue-100' : 'text-gray-500')}>
+                    {counts[category.slug] ?? 0}
+                  </span>
                 </Link>
               </li>
             )
@@ -126,8 +133,9 @@ export default async function LabTestsPage({ searchParams }: { searchParams: Sea
         </ul>
       </nav>
 
-      <p className="mb-5 mt-6 text-body-sm text-gray-500" aria-live="polite">
-        {tests.length} {tests.length === 1 ? 'test' : 'tests'}
+      <p className="mb-5 mt-7 text-body-sm text-gray-500" aria-live="polite">
+        <span className="font-semibold text-gray-900">{tests.length}</span>{' '}
+        {tests.length === 1 ? 'test' : 'tests'}
       </p>
 
       {tests.length === 0 ? (
@@ -142,7 +150,7 @@ export default async function LabTestsPage({ searchParams }: { searchParams: Sea
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {tests.map((test) => (
             <LabTestCard key={test.id} test={test} />
           ))}
@@ -150,13 +158,13 @@ export default async function LabTestsPage({ searchParams }: { searchParams: Sea
       )}
 
       {!activeCategory && (
-        <section className="mt-16">
+        <section className="mt-14 border-t border-gray-200 pt-10 md:mt-16">
           <SectionHeading
             title="Health packages"
             description="Bundled screening at a lower price than booking each test separately."
             href="/health-packages"
           />
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {packages.slice(0, 3).map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} testCount={pkg.includedTestSlugs.length} />
             ))}

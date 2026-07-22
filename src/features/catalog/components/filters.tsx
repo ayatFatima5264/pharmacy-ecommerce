@@ -126,9 +126,17 @@ export function ProductFilters({
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:block">
-        <div className="sticky top-32">
-          <h2 className="mb-5 text-h3">Filters</h2>
-          {panel}
+        <div className="sticky top-32 rounded-lg border border-gray-200 bg-white shadow-e1">
+          <h2 className="flex items-center gap-2 border-b border-gray-200 px-5 py-4 text-h3">
+            <SlidersHorizontal className="h-4 w-4 text-blue-600" aria-hidden="true" />
+            Filters
+            {activeCount > 0 && (
+              <span className="tabular flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">
+                {activeCount}
+              </span>
+            )}
+          </h2>
+          <div className="p-5">{panel}</div>
         </div>
       </aside>
 

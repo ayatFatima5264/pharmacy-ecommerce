@@ -32,29 +32,38 @@ export default async function AccountPage({
       : null
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className="bg-gray-50">
+    <div className="container py-10 md:py-12">
       {notice && (
         <div
           role="status"
-          className="mb-6 flex items-start gap-2.5 rounded-sm bg-green-50 p-3.5 text-body-sm text-green-700"
+          className="mb-6 flex items-start gap-2.5 rounded-md border border-green-600/20 bg-green-50 p-3.5 text-body-sm text-green-700"
         >
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{notice}</span>
         </div>
       )}
 
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-h1">My account</h1>
-          <p className="mt-1 text-body text-gray-500">
-            Signed in as <span className="font-semibold text-gray-900">{customer.name}</span> (
-            {customer.email})
-          </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <span
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xl font-bold text-white"
+            aria-hidden="true"
+          >
+            {customer.name.charAt(0).toUpperCase()}
+          </span>
+          <div>
+            <h1 className="text-h1">Welcome back, {customer.name.split(' ')[0]}</h1>
+            <p className="mt-1 text-body text-gray-500">
+              Signed in as <span className="font-semibold text-gray-900">{customer.name}</span> (
+              {customer.email})
+            </p>
+          </div>
         </div>
         <form action={customerLogout}>
           <button
             type="submit"
-            className="flex h-9 items-center gap-1.5 rounded-sm border border-gray-200 px-3 text-body-sm font-semibold text-gray-600 hover:bg-gray-50 hover:text-red-600"
+            className="flex h-10 items-center gap-1.5 rounded-sm border border-gray-200 bg-white px-3.5 text-body-sm font-semibold text-gray-600 transition-colors duration-fast hover:bg-gray-50 hover:text-red-600"
           >
             <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
             Sign out
@@ -62,29 +71,41 @@ export default async function AccountPage({
         </form>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/account/orders"
-          className="rounded-lg border border-gray-200 bg-white p-5 transition-colors hover:border-blue-600"
+          className="group rounded-lg border border-gray-200 bg-white p-6 shadow-e1 transition-all duration-medium hover:-translate-y-0.5 hover:border-blue-600/30 hover:shadow-e2"
         >
-          <Package className="h-5 w-5 text-blue-600" aria-hidden="true" />
-          <h2 className="mt-3 text-body font-semibold text-gray-900">Orders</h2>
+          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+            <Package className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <h2 className="mt-4 text-body font-semibold text-gray-900 group-hover:text-blue-600">
+            Orders
+          </h2>
           <p className="mt-1 text-body-sm text-gray-500">Your order history</p>
         </Link>
         <Link
           href="/lab-tests"
-          className="rounded-lg border border-gray-200 bg-white p-5 transition-colors hover:border-blue-600"
+          className="group rounded-lg border border-gray-200 bg-white p-6 shadow-e1 transition-all duration-medium hover:-translate-y-0.5 hover:border-blue-600/30 hover:shadow-e2"
         >
-          <FlaskConical className="h-5 w-5 text-blue-600" aria-hidden="true" />
-          <h2 className="mt-3 text-body font-semibold text-gray-900">Lab tests</h2>
+          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+            <FlaskConical className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <h2 className="mt-4 text-body font-semibold text-gray-900 group-hover:text-blue-600">
+            Lab tests
+          </h2>
           <p className="mt-1 text-body-sm text-gray-500">Book a test or package</p>
         </Link>
         <Link
           href="/pharmacy"
-          className="rounded-lg border border-gray-200 bg-white p-5 transition-colors hover:border-blue-600"
+          className="group rounded-lg border border-gray-200 bg-white p-6 shadow-e1 transition-all duration-medium hover:-translate-y-0.5 hover:border-blue-600/30 hover:shadow-e2"
         >
-          <MapPin className="h-5 w-5 text-blue-600" aria-hidden="true" />
-          <h2 className="mt-3 text-body font-semibold text-gray-900">Pharmacy</h2>
+          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+            <MapPin className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <h2 className="mt-4 text-body font-semibold text-gray-900 group-hover:text-blue-600">
+            Pharmacy
+          </h2>
           <p className="mt-1 text-body-sm text-gray-500">Continue shopping</p>
         </Link>
       </div>
@@ -92,6 +113,7 @@ export default async function AccountPage({
       <p className="mt-8 text-body-sm text-gray-400">
         Order history, saved addresses, and lab reports appear here as those features launch.
       </p>
+    </div>
     </div>
   )
 }

@@ -32,6 +32,7 @@ export function ResetPasswordForm() {
           autoFocus
           aria-invalid={!!fieldError(state, 'password')}
           required
+          className="h-12"
         />
       </Field>
 
@@ -48,6 +49,7 @@ export function ResetPasswordForm() {
           autoComplete="new-password"
           aria-invalid={!!fieldError(state, 'confirm')}
           required
+          className="h-12"
         />
       </Field>
 

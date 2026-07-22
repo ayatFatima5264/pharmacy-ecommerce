@@ -6,33 +6,36 @@
    Design tokens — see docs/DESIGN-SYSTEM.md
    Contrast ratios against white are measured, not estimated.
    --------------------------------------------------------------------------- */
+/* AR Medical Store — premium healthcare palette.
+   The `blue` slot carries the BRAND teal (#0F766E primary): every component
+   references the slot, so the whole application re-themes from here. */
 :root {
-  --blue-50: #eff5ff;
-  --blue-100: #dbe8fe;
-  --blue-500: #2b7fff;
-  --blue-600: #0057d9; /* 6.24:1 AA — primary action */
-  --blue-700: #0046ae; /* 8.6:1 AAA — hover */
-  --blue-900: #062c6b;
+  --blue-50: #f0fdfa; /* teal tint — hovers, soft fills */
+  --blue-100: #ccfbf1;
+  --blue-500: #14b8a6; /* secondary — icons, highlights */
+  --blue-600: #0f766e; /* 5.9:1 AA — PRIMARY action */
+  --blue-700: #115e59; /* 7.4:1 AAA — hover */
+  --blue-900: #134e4a;
 
-  --green-50: #ecfdf5;
-  --green-600: #0e9f6e; /* 3.38:1 — fills and icons only */
-  --green-700: #047857; /* 5.48:1 AA — success text */
+  --green-50: #f0fdf4;
+  --green-600: #22c55e; /* accent — fills and icons only */
+  --green-700: #15803d; /* 5.0:1 AA — success text */
 
   --amber-50: #fffbeb;
   --amber-600: #d97706; /* fills only */
   --amber-700: #b45309; /* 4.9:1 AA — Rx text */
 
   --red-50: #fef2f2;
-  --red-600: #dc2626; /* 4.83:1 AA */
-  --red-700: #b91c1c;
+  --red-600: #ef4444; /* error fills/borders */
+  --red-700: #b91c1c; /* 6.5:1 AA — error text */
 
-  --gray-50: #f8fafc;
+  --gray-50: #f8fafc; /* page background */
   --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
+  --gray-200: #e2e8f0; /* borders */
   --gray-400: #94a3b8;
   --gray-500: #64748b; /* 4.76:1 AA — lightest permitted text */
   --gray-700: #334155;
-  --gray-900: #0f172a;
+  --gray-900: #0f172a; /* headings / primary text */
 }
 
 @layer base {

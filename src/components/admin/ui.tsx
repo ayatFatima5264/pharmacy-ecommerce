@@ -13,14 +13,14 @@ export function PageHeader({
   action?: React.ReactNode
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <h1 className="text-[26px] font-bold leading-tight tracking-[-0.02em] text-gray-900">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0">
+        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-gray-900">
           {title}
         </h1>
-        {description && <p className="mt-1.5 max-w-2xl text-[13.5px] text-gray-500">{description}</p>}
+        {description && <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-gray-600">{description}</p>}
       </div>
-      {action && <div className="flex shrink-0 gap-2">{action}</div>}
+      {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
     </div>
   )
 }
@@ -45,14 +45,27 @@ export function StatCard({
     danger: 'text-red-600',
   }[tone]
 
+  const accentClass = {
+    neutral: 'before:bg-blue-600/70',
+    success: 'before:bg-green-600',
+    warning: 'before:bg-amber-500',
+    danger: 'before:bg-red-500',
+  }[tone]
+
   return (
-    <div className="rounded-md border border-gray-200 bg-white p-4">
-      <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-500">{label}</p>
-      <p className={cn('tabular mt-1.5 text-[23px] font-bold tracking-[-0.02em]', toneClass)}>
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-md border border-gray-200 bg-white p-5 pl-6 shadow-e1 transition-shadow duration-fast hover:shadow-e2',
+        'before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:rounded-r-full',
+        accentClass,
+      )}
+    >
+      <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-gray-500">{label}</p>
+      <p className={cn('tabular mt-2 text-[26px] font-bold leading-none tracking-[-0.02em]', toneClass)}>
         {value}
       </p>
-      {delta && <p className="mt-0.5 text-[12.5px] text-green-700">{delta}</p>}
-      {hint && <p className="mt-0.5 text-[12.5px] text-gray-500">{hint}</p>}
+      {delta && <p className="mt-1.5 text-[12.5px] font-semibold text-green-700">{delta}</p>}
+      {hint && <p className="mt-1.5 text-[12.5px] text-gray-500">{hint}</p>}
     </div>
   )
 }
@@ -72,7 +85,7 @@ export function StatusPill({ tone, children }: { tone: PillTone; children: React
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[12px] font-semibold',
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[12px] font-semibold leading-none',
         toneClass,
       )}
     >
@@ -111,12 +124,12 @@ export function Panel({
   className?: string
 }) {
   return (
-    <section className={cn('rounded-md border border-gray-200 bg-white', className)}>
-      <div className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-3">
-        <h2 className="text-[14px] font-bold text-gray-900">{title}</h2>
+    <section className={cn('rounded-md border border-gray-200 bg-white shadow-e1', className)}>
+      <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
+        <h2 className="text-[14.5px] font-bold tracking-[-0.01em] text-gray-900">{title}</h2>
         {action}
       </div>
-      <div className="p-4">{children}</div>
+      <div className="p-5">{children}</div>
     </section>
   )
 }
@@ -138,13 +151,19 @@ export function BarChart({
 
   return (
     <div>
-      <div className="flex h-44 items-end gap-1.5">
+      <div
+        className="flex h-44 items-end gap-2 border-b border-gray-100"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(to top, transparent, transparent calc(25% - 1px), rgb(241 245 249) calc(25% - 1px), rgb(241 245 249) 25%)',
+        }}
+      >
         {data.map((point) => {
           const heightPercent = Math.max(2, (point.value / max) * 100)
           return (
-            <div key={point.label} className="group relative flex flex-1 flex-col justify-end">
+            <div key={point.label} className="group relative flex h-full flex-1 flex-col items-center justify-end">
               <div
-                className="rounded-t-sm bg-blue-600/85 transition-colors duration-fast group-hover:bg-blue-700"
+                className="w-full max-w-[22px] rounded-t-[4px] bg-blue-600 transition-colors duration-fast group-hover:bg-blue-700"
                 style={{ height: `${heightPercent}%` }}
               />
               <span className="sr-only">
@@ -160,11 +179,11 @@ export function BarChart({
           )
         })}
       </div>
-      <div className="mt-2 flex gap-1.5">
+      <div className="mt-2.5 flex gap-2">
         {data.map((point, i) => (
           <span
             key={point.label}
-            className="flex-1 text-center text-[10.5px] text-gray-400"
+            className="flex-1 text-center text-[10.5px] font-medium text-gray-400"
             aria-hidden="true"
           >
             {/* Every other label, so they never collide on narrow screens. */}

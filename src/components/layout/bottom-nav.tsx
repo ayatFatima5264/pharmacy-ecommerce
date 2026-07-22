@@ -27,7 +27,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_12px_rgb(15_23_42_/_0.06)] md:hidden"
     >
       <ul className="flex">
         {items.map((item) => {
@@ -39,10 +39,16 @@ export function BottomNav() {
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'relative flex h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold',
-                  active ? 'text-blue-600' : 'text-gray-500',
+                  'relative flex h-14 flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors duration-fast',
+                  active ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700',
                 )}
               >
+                {active && (
+                  <span
+                    className="absolute inset-x-1/4 top-0 h-[3px] rounded-b-full bg-blue-600"
+                    aria-hidden="true"
+                  />
+                )}
                 <span className="relative">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                   {item.href === '/cart' && hydrated && itemCount > 0 && (

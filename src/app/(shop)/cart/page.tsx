@@ -67,7 +67,8 @@ export default function CartPage() {
   const canCheckout = totals.itemCount > 0
 
   return (
-    <div className="container py-8">
+    <div className="bg-gray-50">
+      <div className="container py-8 md:py-10">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Cart' }]} />
 
       <h1 className="mb-8 text-h1">
@@ -78,7 +79,7 @@ export default function CartPage() {
       </h1>
 
       {problemLines.length > 0 && (
-        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-md bg-red-50 p-4" role="alert">
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-md border border-red-600/20 bg-red-50 p-4" role="alert">
           <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" aria-hidden="true" />
           <p className="flex-1 text-body-sm text-red-700">
             {problemLines.length} item{problemLines.length === 1 ? '' : 's'} in your cart{' '}
@@ -90,16 +91,22 @@ export default function CartPage() {
         </div>
       )}
 
-      <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
         <section aria-label="Cart items">
-          <ul className="flex flex-col divide-y divide-gray-200 border-y border-gray-200">
+          <ul className="flex flex-col gap-4">
             {cart.lines.map((line) => {
               const entry = line.entry
               const unavailable =
                 line.issue?.type === 'unavailable' || line.issue?.type === 'out_of_stock'
 
               return (
-                <li key={line.key} className={cn('flex gap-4 py-5', unavailable && 'opacity-60')}>
+                <li
+                  key={line.key}
+                  className={cn(
+                    'flex gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-e1 transition-shadow duration-medium hover:shadow-e2 sm:p-5',
+                    unavailable && 'opacity-60',
+                  )}
+                >
                   <MediaPlaceholder
                     icon={entry?.icon ?? '📦'}
                     size="sm"
@@ -195,9 +202,9 @@ export default function CartPage() {
             {/* Shipping estimator — Amazon and Shopify both quote before
                 checkout, because an unknown delivery cost is a reason to leave. */}
             {totals.hasPhysicalItems && (
-              <div className="rounded-md border border-gray-200 p-5">
+              <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-e1 md:p-6">
                 <h2 className="mb-3 flex items-center gap-2 text-h3">
-                  <Truck className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                  <Truck className="h-4 w-4 text-blue-600" aria-hidden="true" />
                   Delivery
                 </h2>
 
@@ -241,7 +248,7 @@ export default function CartPage() {
               </div>
             )}
 
-            <div className="rounded-md border border-gray-200 p-5">
+            <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-e1 md:p-6">
               <h2 className="mb-4 text-h3">Order summary</h2>
 
               <form
@@ -356,9 +363,32 @@ export default function CartPage() {
               </dl>
 
               {totals.freeDeliveryRemainingPaisa > 0 && (
-                <p className="mt-4 rounded-sm bg-blue-50 p-3 text-body-sm text-blue-700">
-                  Add {formatPrice(totals.freeDeliveryRemainingPaisa)} more for free delivery.
-                </p>
+                <div className="mt-4 rounded-md bg-blue-50 p-3.5">
+                  <p className="flex items-center gap-1.5 text-body-sm font-medium text-blue-700">
+                    <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    Add {formatPrice(totals.freeDeliveryRemainingPaisa)} more for free delivery.
+                  </p>
+                  {/* Visual-only progress toward the free-delivery threshold,
+                      derived from totals the cart engine already computes. */}
+                  <div
+                    className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-blue-100"
+                    aria-hidden="true"
+                  >
+                    <div
+                      className="h-full rounded-full bg-blue-600 transition-all duration-medium"
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          Math.round(
+                            (totals.subtotalPaisa /
+                              (totals.subtotalPaisa + totals.freeDeliveryRemainingPaisa)) *
+                              100,
+                          ),
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
               )}
 
               <Link
@@ -386,6 +416,7 @@ export default function CartPage() {
             </div>
           </div>
         </aside>
+      </div>
       </div>
     </div>
   )

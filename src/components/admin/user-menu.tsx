@@ -16,11 +16,11 @@ import type { AuthUser } from '@/features/auth/staff/guards'
  */
 export function AdminUserMenu({ user, unreadCount = 0 }: { user: AuthUser; unreadCount?: number }) {
   return (
-    <div className="flex h-12 items-center justify-end gap-4 border-b border-gray-200 bg-white px-4 md:px-6">
+    <div className="flex h-14 items-center justify-end gap-4 border-b border-gray-200 bg-white px-4 md:px-6">
       {/* The bell: count refreshes on every server render (navigation). */}
       <Link
         href="/admin/notifications"
-        className="relative flex h-8 w-8 items-center justify-center rounded-sm text-gray-500 hover:bg-gray-100 hover:text-blue-600"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition-colors duration-fast hover:bg-blue-50 hover:text-blue-600"
         aria-label={`Notifications${unreadCount ? ` (${unreadCount} unread)` : ''}`}
       >
         <Bell className="h-4 w-4" aria-hidden="true" />
@@ -32,7 +32,7 @@ export function AdminUserMenu({ user, unreadCount = 0 }: { user: AuthUser; unrea
       </Link>
 
       <div className="flex items-center gap-2.5">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-[11.5px] font-bold text-blue-700">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-[11.5px] font-bold text-blue-700 ring-1 ring-inset ring-blue-600/15">
           {user.name
             .split(' ')
             .map((part) => part[0])
@@ -52,7 +52,7 @@ export function AdminUserMenu({ user, unreadCount = 0 }: { user: AuthUser; unrea
       <form action={staffLogout}>
         <button
           type="submit"
-          className="flex h-8 items-center gap-1.5 rounded-sm px-2.5 text-[13px] font-semibold text-gray-500 hover:bg-gray-100 hover:text-red-600"
+          className="flex h-9 items-center gap-1.5 rounded-sm px-3 text-[13px] font-semibold text-gray-500 transition-colors duration-fast hover:bg-red-50 hover:text-red-600"
         >
           <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
           Sign out

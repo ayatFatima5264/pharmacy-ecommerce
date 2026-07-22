@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { AlertCircle, ChevronDown, Loader2, Lock, ShieldCheck } from 'lucide-react'
+import { AlertCircle, Check, ChevronDown, Loader2, Lock, ShieldCheck } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
@@ -113,14 +113,17 @@ export default function CheckoutPage() {
   const labFastingHours = fastingValues.length > 0 ? Math.max(...fastingValues) : null
 
   return (
-    <div className="container max-w-5xl py-8">
-      <div className="mb-8 flex items-center justify-between gap-4">
+    <div className="bg-gray-50">
+      <div className="container py-8 md:py-10">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-h1">Checkout</h1>
-        <span className="flex items-center gap-1.5 text-body-sm font-semibold text-green-700">
+        <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3.5 py-1.5 text-body-sm font-semibold text-green-700">
           <ShieldCheck className="h-4 w-4" aria-hidden="true" />
           Secure checkout
         </span>
       </div>
+
+      <CheckoutProgress />
 
       {state.status === 'error' && (
         <div
@@ -132,14 +135,14 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      <form action={formAction} noValidate className="grid gap-8 lg:grid-cols-[1fr_340px]">
+      <form action={formAction} noValidate className="grid gap-8 lg:grid-cols-[1fr_400px]">
         {/* Cart contents travel as refs and quantities only. The server prices
             them: a total submitted by a browser is a total a browser can edit. */}
         <input type="hidden" name="items" value={itemsPayload} />
         <input type="hidden" name="couponCode" value={cart.coupon?.code ?? ''} />
         <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <Section number={1} title="Contact details">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="First name" htmlFor="firstName" error={err('firstName')} required>
@@ -395,7 +398,7 @@ export default function CheckoutPage() {
 
         <aside aria-label="Order summary">
           <div className="lg:sticky lg:top-32">
-            <div className="rounded-md border border-gray-200">
+            <div className="rounded-lg border border-gray-200 bg-white shadow-e1">
               <button
                 type="button"
                 onClick={() => setSummaryOpen((o) => !o)}
@@ -476,10 +479,76 @@ export default function CheckoutPage() {
             <p className="mt-3 text-center text-body-sm text-gray-500">
               By placing this order you agree to our terms of service.
             </p>
+
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-caption text-gray-500">
+              <Lock className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
+              Your details are encrypted and never shared.
+            </p>
           </div>
         </aside>
       </form>
+      </div>
     </div>
+  )
+}
+
+/**
+ * Purely visual checkout journey indicator — static markup, no state. The
+ * customer is past the cart and is filling in details/payment on this page.
+ */
+function CheckoutProgress() {
+  const steps = [
+    { label: 'Cart', state: 'done' },
+    { label: 'Details', state: 'current' },
+    { label: 'Payment', state: 'current' },
+    { label: 'Done', state: 'upcoming' },
+  ] as const
+
+  return (
+    <nav aria-label="Checkout progress" className="mb-8">
+      <ol className="flex items-center">
+        {steps.map((step, index) => (
+          <li
+            key={step.label}
+            className={cn('flex items-center', index > 0 && 'flex-1')}
+          >
+            {index > 0 && (
+              <span
+                className={cn(
+                  'mx-2 h-0.5 flex-1 rounded-full sm:mx-3',
+                  step.state === 'upcoming' ? 'bg-gray-200' : 'bg-blue-600',
+                )}
+                aria-hidden="true"
+              />
+            )}
+            <span className="flex items-center gap-2">
+              <span
+                className={cn(
+                  'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-caption font-bold',
+                  step.state === 'done' && 'bg-blue-600 text-white',
+                  step.state === 'current' && 'border-2 border-blue-600 bg-blue-50 text-blue-700',
+                  step.state === 'upcoming' && 'border-2 border-gray-200 bg-white text-gray-400',
+                )}
+              >
+                {step.state === 'done' ? (
+                  <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                ) : (
+                  index + 1
+                )}
+              </span>
+              <span
+                className={cn(
+                  'hidden text-body-sm font-semibold sm:inline',
+                  step.state === 'upcoming' ? 'text-gray-400' : 'text-gray-900',
+                )}
+              >
+                {step.label}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </nav>
   )
 }
 
@@ -503,9 +572,9 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-md border border-gray-200 p-5 md:p-6">
-      <h2 className="mb-5 flex items-center gap-3 text-caption uppercase tracking-[0.07em] text-gray-500">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[11px] font-bold text-white">
+    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-e1 md:p-8">
+      <h2 className="mb-6 flex items-center gap-3 text-h3 text-gray-900">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-body-sm font-bold text-white">
           {number}
         </span>
         {title}

@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
           Enter your email and we&rsquo;ll send you a reset link
         </p>
       </div>
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-e1 sm:p-8">
         <ForgotPasswordForm />
       </div>
     </>

@@ -53,12 +53,16 @@ async function Results({
   const products = await getProducts(filters)
 
   return (
-    <>
-      <p className="mb-5 text-body-sm text-gray-500" aria-live="polite">
-        {products.length} {products.length === 1 ? 'product' : 'products'}
-      </p>
-      <ProductGrid products={products} />
-    </>
+    <ProductGrid
+      products={products}
+      toolbar={
+        <p className="text-body-sm text-gray-500" aria-live="polite">
+          <span className="font-semibold text-gray-900">{products.length}</span>{' '}
+          {products.length === 1 ? 'product' : 'products'}
+        </p>
+      }
+      controls={<DesktopSort />}
+    />
   )
 }
 
@@ -76,7 +80,7 @@ export default async function CategoryPage({
   const [brands, query] = await Promise.all([getBrands(), searchParams])
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 md:py-12">
       <Breadcrumbs
         items={[
           { label: 'Home', href: '/' },
@@ -85,20 +89,20 @@ export default async function CategoryPage({
         ]}
       />
 
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div className="flex items-start gap-4">
-          <span className="text-4xl" aria-hidden="true">
-            {category.icon}
-          </span>
-          <div>
-            <h1 className="text-h1">{category.name}</h1>
-            <p className="mt-2 max-w-2xl text-body text-gray-500">{category.description}</p>
-          </div>
+      <div className="mb-8 flex items-start gap-4">
+        <span
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-blue-50 text-3xl"
+          aria-hidden="true"
+        >
+          {category.icon}
+        </span>
+        <div>
+          <h1 className="text-h1">{category.name}</h1>
+          <p className="mt-2 max-w-3xl text-body text-gray-500">{category.description}</p>
         </div>
-        <DesktopSort />
       </div>
 
-      <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[260px_1fr]">
+      <div className="grid items-start gap-x-8 gap-y-6 lg:grid-cols-[260px_1fr]">
         <ProductFilters brands={brands} />
         <div>
           <Suspense key={JSON.stringify(query)} fallback={<ProductGridSkeleton />}>

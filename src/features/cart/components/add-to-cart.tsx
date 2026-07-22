@@ -84,17 +84,17 @@ export function QuantityStepper({
   label?: string
 }) {
   return (
-    <div className="flex h-11 items-center rounded-sm border border-gray-200">
+    <div className="flex h-11 items-center overflow-hidden rounded-md border border-gray-200 bg-white shadow-e1">
       <button
         type="button"
         onClick={() => onChange(Math.max(min, value - 1))}
         disabled={value <= min}
         aria-label={`Decrease ${label.toLowerCase()}`}
-        className="flex h-full w-11 items-center justify-center rounded-l-sm text-gray-700 transition-colors duration-fast hover:bg-gray-100 disabled:text-gray-400 disabled:hover:bg-transparent"
+        className="flex h-full w-11 items-center justify-center text-gray-700 transition-colors duration-fast hover:bg-blue-50 hover:text-blue-600 disabled:text-gray-400 disabled:hover:bg-transparent disabled:hover:text-gray-400"
       >
         <Minus className="h-4 w-4" aria-hidden="true" />
       </button>
-      <span className="tabular w-10 text-center text-body font-semibold text-gray-900" aria-live="polite">
+      <span className="tabular flex h-full w-10 items-center justify-center border-x border-gray-200 text-center text-body font-semibold text-gray-900" aria-live="polite">
         {value}
       </span>
       <button
@@ -102,7 +102,7 @@ export function QuantityStepper({
         onClick={() => onChange(Math.min(max, value + 1))}
         disabled={value >= max}
         aria-label={`Increase ${label.toLowerCase()}`}
-        className="flex h-full w-11 items-center justify-center rounded-r-sm text-gray-700 transition-colors duration-fast hover:bg-gray-100 disabled:text-gray-400 disabled:hover:bg-transparent"
+        className="flex h-full w-11 items-center justify-center text-gray-700 transition-colors duration-fast hover:bg-blue-50 hover:text-blue-600 disabled:text-gray-400 disabled:hover:bg-transparent disabled:hover:text-gray-400"
       >
         <Plus className="h-4 w-4" aria-hidden="true" />
       </button>

@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { ShieldCheck } from 'lucide-react'
 import { StaffLoginForm } from '@/features/auth/staff/components/staff-login-form'
 import { siteConfig } from '@/config/site'
@@ -19,17 +20,22 @@ export default function StaffLoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 py-12">
       <div className="w-full max-w-[420px]">
-        <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-blue-600 text-lg font-bold text-white">
-            S
-          </span>
+        <div className="mb-8 flex flex-col items-center gap-4 text-center">
+          <Image
+            src={siteConfig.logo}
+            alt={`${siteConfig.name} logo`}
+            width={44}
+            height={44}
+            className="h-11 w-11 rounded-md object-contain"
+            priority
+          />
           <div>
             <h1 className="text-h2">{siteConfig.name} staff</h1>
-            <p className="mt-1 text-body-sm text-gray-500">Sign in to the admin console</p>
+            <p className="mt-1.5 text-body-sm text-gray-500">Sign in to the admin console</p>
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-e2 sm:p-8">
           <Suspense fallback={<div className="h-64 animate-pulse rounded-sm bg-gray-100" />}>
             <StaffLoginForm />
           </Suspense>

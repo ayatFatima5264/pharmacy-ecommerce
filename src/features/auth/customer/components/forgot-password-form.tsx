@@ -31,6 +31,7 @@ export function ForgotPasswordForm() {
           autoFocus
           aria-invalid={!!fieldError(state, 'email')}
           required
+          className="h-12"
         />
       </Field>
 

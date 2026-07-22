@@ -24,7 +24,7 @@ export default async function ResetPasswordPage() {
       <div className="mb-6 text-center">
         <h1 className="text-h2">Choose a new password</h1>
       </div>
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-e1 sm:p-8">
         {user ? (
           <ResetPasswordForm />
         ) : (

@@ -132,9 +132,10 @@ function PageLink({
       scroll={false}
       className={cn(
         base,
+        'transition-colors duration-fast',
         current
-          ? 'bg-blue-600 text-white'
-          : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+          ? 'bg-blue-600 text-white shadow-e1'
+          : 'border border-gray-200 bg-white text-gray-700 hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700',
       )}
     >
       {children}

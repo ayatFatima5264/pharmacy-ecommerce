@@ -75,7 +75,7 @@ export function FilterBar({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={searchPlaceholder}
-            className="h-9 w-full rounded-sm border border-gray-200 bg-white pl-9 pr-3 text-[13.5px] text-gray-900 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none focus:ring-[3px] focus:ring-blue-100"
+            className="h-10 w-full rounded-sm border border-gray-200 bg-white pl-9 pr-3 text-[13.5px] text-gray-900 shadow-e1 transition-colors duration-fast placeholder:text-gray-400 focus:border-blue-600 focus:outline-none focus:ring-[3px] focus:ring-blue-100"
           />
         </div>
 
@@ -93,9 +93,9 @@ export function FilterBar({
                 )
               }
               className={cn(
-                'h-9 cursor-pointer rounded-sm border bg-white px-3 pr-8 text-[13.5px] focus:border-blue-600 focus:outline-none focus:ring-[3px] focus:ring-blue-100',
+                'h-10 cursor-pointer rounded-sm border bg-white px-3 pr-8 text-[13.5px] shadow-e1 transition-colors duration-fast focus:border-blue-600 focus:outline-none focus:ring-[3px] focus:ring-blue-100',
                 searchParams.get(select.key)
-                  ? 'border-blue-600 text-blue-700'
+                  ? 'border-blue-600 bg-blue-50/50 text-blue-700'
                   : 'border-gray-200 text-gray-700',
               )}
             >
@@ -113,7 +113,7 @@ export function FilterBar({
           <button
             type="button"
             onClick={() => router.push(pathname, { scroll: false })}
-            className="flex h-9 items-center gap-1.5 rounded-sm px-3 text-[13px] font-semibold text-gray-500 hover:bg-gray-100 hover:text-red-600"
+            className="flex h-10 items-center gap-1.5 rounded-sm px-3 text-[13px] font-semibold text-gray-500 transition-colors duration-fast hover:bg-red-50 hover:text-red-600"
           >
             <X className="h-3.5 w-3.5" aria-hidden="true" />
             Reset

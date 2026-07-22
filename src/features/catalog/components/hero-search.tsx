@@ -16,9 +16,11 @@ export function HeroSearch() {
         e.preventDefault()
         if (query.trim()) router.push(`/search?q=${encodeURIComponent(query.trim())}`)
       }}
-      className="flex w-full max-w-xl flex-col gap-3 sm:flex-row"
+      className="w-full max-w-xl"
     >
-      <div className="relative flex-1">
+      {/* Premium pill: one white surface with the submit button living inside
+          it, so the whole control reads as a single object. */}
+      <div className="relative flex items-center rounded-lg bg-white shadow-e2 ring-1 ring-gray-200 transition-shadow duration-fast focus-within:ring-2 focus-within:ring-blue-600">
         <label htmlFor="hero-search" className="sr-only">
           Search medicines or lab tests
         </label>
@@ -32,12 +34,17 @@ export function HeroSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search medicines or lab tests…"
-          className="h-13 w-full rounded-md border border-gray-200 bg-white pl-12 pr-4 text-base text-gray-900 shadow-e1 placeholder:text-gray-400 focus:border-blue-600 focus:outline-none focus:ring-[3px] focus:ring-blue-100"
+          className="h-14 w-full rounded-lg border-0 bg-transparent pl-12 pr-[7.5rem] text-base text-gray-900 placeholder:text-gray-400 focus:outline-none"
         />
+        <Button
+          type="submit"
+          size="sm"
+          className="absolute right-2 top-1/2 h-10 -translate-y-1/2 gap-1.5 px-4"
+        >
+          <Search className="h-4 w-4" aria-hidden="true" />
+          Search
+        </Button>
       </div>
-      <Button type="submit" size="lg" className="sm:w-auto">
-        Search
-      </Button>
     </form>
   )
 }

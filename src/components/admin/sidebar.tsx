@@ -146,9 +146,9 @@ function Brand() {
       <Image
         src={siteConfig.logo}
         alt=""
-        width={32}
-        height={32}
-        className="h-8 w-8 shrink-0 rounded-md object-contain"
+        width={40}
+        height={40}
+        className="h-10 w-10 shrink-0 rounded-md object-contain"
       />
       <span className="text-[14px] font-bold tracking-[-0.01em] text-gray-900">
         {siteConfig.name}

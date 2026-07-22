@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 export const metadata: Metadata = {
   title: 'About us',
   description:
-    'A DRAP-licensed online pharmacy in Pakistan. How we source genuine medicine, verify prescriptions, and protect the cold chain.',
+    'A DRAP-licensed online medical store in Pakistan. How we source genuine medicine, verify prescriptions, and protect the cold chain.',
 }
 
 const highlights = [
@@ -67,7 +67,7 @@ export default function AboutPage() {
                 Way
               </h1>
               <p className="mt-4 max-w-xl text-lg leading-relaxed text-gray-500">
-                {siteConfig.name} is your trusted online pharmacy and lab-testing partner in
+                {siteConfig.name} is your trusted online medical store and lab-testing partner in
                 Pakistan. We are committed to 100% genuine medicines, reliable lab tests, and
                 expert healthcare support — all from the comfort of your home.
               </p>
@@ -101,7 +101,7 @@ export default function AboutPage() {
                 <ShieldCheck className="h-5 w-5 text-blue-600" />
                 <p className="mt-2 text-body-sm font-bold text-gray-900">DRAP Licensed</p>
                 <p className="mt-1 text-caption leading-relaxed text-gray-500">
-                  A licensed pharmacy ({siteConfig.drapLicense}) held to the highest standards of
+                  A licensed medical store ({siteConfig.drapLicense}) held to the highest standards of
                   quality and safety.
                 </p>
               </div>

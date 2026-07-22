@@ -435,7 +435,7 @@ export async function trackOrderDb(
         at: order.placed_at,
         done: true,
       },
-      { key: 'processing', label: 'Being prepared at our pharmacy', at: null, done: rank >= 1 },
+      { key: 'processing', label: 'Being prepared at our store', at: null, done: rank >= 1 },
       { key: 'shipped', label: 'On the way', at: null, done: rank >= 2 },
       { key: 'delivered', label: 'Delivered', at: null, done: rank >= 3 },
     ],

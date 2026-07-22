@@ -191,7 +191,7 @@ export function orderShippedEmail(order: PlacedOrder): RenderedEmail {
   const html = emailShell({
     preheader: `Order ${order.orderNumber} is on its way — arriving ${order.estimatedDeliveryFrom}.`,
     heading: 'Your order is on the way',
-    intro: `${order.firstName}, your order has left our pharmacy and is with the courier.`,
+    intro: `${order.firstName}, your order has left our store and is with the courier.`,
     body:
       block(
         `<div style="font-family:${FONT};font-size:14px;color:${BRAND.muted};">Order <strong style="color:${BRAND.ink};">${esc(order.orderNumber)}</strong></div>`,

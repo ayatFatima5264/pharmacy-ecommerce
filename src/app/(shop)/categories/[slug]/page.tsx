@@ -84,7 +84,7 @@ export default async function CategoryPage({
       <Breadcrumbs
         items={[
           { label: 'Home', href: '/' },
-          { label: 'Pharmacy', href: '/pharmacy' },
+          { label: 'Medical Store', href: '/pharmacy' },
           { label: category.name },
         ]}
       />

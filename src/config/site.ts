@@ -1,8 +1,8 @@
 export const siteConfig = {
   name: 'AR Medical Store',
-  tagline: 'Your trusted online pharmacy & lab',
+  tagline: 'Your trusted online medical store & lab',
   description:
-    'Genuine medicines, lab tests, and health packages delivered across Pakistan. DRAP-licensed pharmacy with pharmacist-verified prescriptions and cash on delivery.',
+    'Genuine medicines, lab tests, and health packages delivered across Pakistan. DRAP-licensed medical store with pharmacist-verified prescriptions and cash on delivery.',
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   /** Brand mark shipped in /public — used by the header, auth pages, and admin. */
   logo: '/logo.png',
@@ -15,7 +15,7 @@ export const siteConfig = {
 } as const
 
 export const mainNav = [
-  { label: 'Pharmacy', href: '/pharmacy' },
+  { label: 'Medicines', href: '/pharmacy' },
   { label: 'Lab Tests', href: '/lab-tests' },
   { label: 'Categories', href: '/pharmacy#categories' },
   { label: 'Offers', href: '/offers' },

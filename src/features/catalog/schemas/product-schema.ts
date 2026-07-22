@@ -143,7 +143,7 @@ export const batchSchema = z
     productId: z.string().trim().min(1, 'Choose a product'),
     variantId: z.string().trim().min(1, 'Choose a pack size'),
     batchNumber: z.string().trim().min(2, 'Batch number is required').max(40),
-    pharmacy: z.string().trim().min(1, 'Choose a pharmacy'),
+    pharmacy: z.string().trim().min(1, 'Choose a branch'),
     expiryDate: z
       .string()
       .trim()

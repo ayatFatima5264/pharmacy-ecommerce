@@ -203,7 +203,7 @@ export default async function ProductPage({ params }: { params: Params }) {
       <Breadcrumbs
         items={[
           { label: 'Home', href: '/' },
-          { label: 'Pharmacy', href: '/pharmacy' },
+          { label: 'Medical Store', href: '/pharmacy' },
           { label: product.name },
         ]}
       />

@@ -31,7 +31,7 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
 export const STATUS_DESCRIPTIONS: Record<OrderStatus, string> = {
   pending: 'Awaiting payment or prescription verification',
   confirmed: 'Accepted and queued for picking',
-  processing: 'Being picked and packed at the pharmacy',
+  processing: 'Being picked and packed at the store',
   shipped: 'Handed to the courier',
   delivered: 'Received by the customer',
   cancelled: 'Cancelled — no further action',

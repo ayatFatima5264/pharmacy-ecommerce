@@ -138,7 +138,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <PageHeader title="Orders" description="Every order across pharmacy and diagnostics." />
+      <PageHeader title="Orders" description="Every order across medicines and diagnostics." />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Total orders" value={String(adminOrders.length)} />

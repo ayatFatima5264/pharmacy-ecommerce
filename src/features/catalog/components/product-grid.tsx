@@ -30,7 +30,7 @@ export function ProductGrid({
         <EmptyState
           icon={<PackageSearch className="h-10 w-10" />}
           title="No products match these filters"
-          description="Try removing a filter, or browse the full pharmacy catalogue."
+          description="Try removing a filter, or browse the full store catalogue."
           action={
             <Link href="/pharmacy" className={cn(buttonVariants({ variant: 'primary' }))}>
               Browse all medicines

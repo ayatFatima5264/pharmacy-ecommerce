@@ -84,7 +84,7 @@ export function StoreStatusForm({ value }: { value: StoreStatus }) {
           defaultChecked={value.pharmacyOpen}
           className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
         />
-        Accept pharmacy orders
+        Accept medicine orders
       </label>
       <label className="flex items-center gap-2.5 text-[13.5px] text-gray-700">
         <input

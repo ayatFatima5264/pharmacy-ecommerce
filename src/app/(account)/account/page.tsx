@@ -104,7 +104,7 @@ export default async function AccountPage({
             <MapPin className="h-5 w-5" aria-hidden="true" />
           </span>
           <h2 className="mt-4 text-body font-semibold text-gray-900 group-hover:text-blue-600">
-            Pharmacy
+            Store
           </h2>
           <p className="mt-1 text-body-sm text-gray-500">Continue shopping</p>
         </Link>

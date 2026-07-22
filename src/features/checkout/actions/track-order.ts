@@ -108,7 +108,7 @@ export async function trackOrder(orderNumber: string, phone: string): Promise<Tr
           at: order.placedAt,
           done: true,
         },
-        { key: 'processing', label: 'Being prepared at our pharmacy', at: null, done: reached('processing') },
+        { key: 'processing', label: 'Being prepared at our store', at: null, done: reached('processing') },
         { key: 'shipped', label: 'On the way', at: null, done: reached('shipped') },
         { key: 'delivered', label: 'Delivered', at: null, done: reached('delivered') },
       ],

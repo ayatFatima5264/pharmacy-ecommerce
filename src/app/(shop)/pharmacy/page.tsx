@@ -7,9 +7,9 @@ import { ProductGridSkeleton } from '@/components/ui/skeleton'
 import { getBrands, getProducts, type ProductFilters as Filters } from '@/lib/data/queries'
 
 export const metadata: Metadata = {
-  title: 'Pharmacy — all medicines',
+  title: 'Medical Store — all medicines',
   description:
-    'Browse genuine medicines, supplements, and medical devices. DRAP-licensed pharmacy with cash on delivery across Pakistan.',
+    'Browse genuine medicines, supplements, and medical devices. DRAP-licensed medical store with cash on delivery across Pakistan.',
 }
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>
@@ -46,10 +46,10 @@ export default async function PharmacyPage({ searchParams }: { searchParams: Sea
 
   return (
     <div className="container py-8 md:py-12">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Pharmacy' }]} />
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Medical Store' }]} />
 
       <div className="mb-8">
-        <h1 className="text-h1">Pharmacy</h1>
+        <h1 className="text-h1">Medical Store</h1>
         <p className="mt-2 max-w-3xl text-body text-gray-500">
           Genuine medicines, supplements, and home medical devices. Prescription items are
           dispensed only after a licensed pharmacist reviews your prescription.

@@ -116,7 +116,7 @@ export function ReceiveBatchForm({
             />
           </AdminField>
 
-          <AdminField label="Pharmacy" name="pharmacy" required error={fieldError(state, 'pharmacy')}>
+          <AdminField label="Branch" name="pharmacy" required error={fieldError(state, 'pharmacy')}>
             <AdminSelect id="pharmacy" name="pharmacy" required>
               {pharmacies.map((pharmacy) => (
                 <option key={pharmacy} value={pharmacy}>

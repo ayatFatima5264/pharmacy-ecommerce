@@ -24,9 +24,9 @@ export default function StaffLoginPage() {
           <Image
             src={siteConfig.logo}
             alt={`${siteConfig.name} logo`}
-            width={44}
-            height={44}
-            className="h-11 w-11 rounded-md object-contain"
+            width={64}
+            height={64}
+            className="h-16 w-16 rounded-md object-contain"
             priority
           />
           <div>

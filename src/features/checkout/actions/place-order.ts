@@ -186,7 +186,7 @@ export async function placeOrder(
   if (totals.hasPhysicalItems && !storeStatus.pharmacyOpen) {
     return {
       status: 'error',
-      message: storeStatus.message || 'Pharmacy ordering is temporarily paused. Please try again later.',
+      message: storeStatus.message || 'Medicine ordering is temporarily paused. Please try again later.',
     }
   }
   if (totals.hasLabItems && !storeStatus.labOpen) {

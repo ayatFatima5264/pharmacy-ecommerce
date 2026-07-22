@@ -27,7 +27,7 @@ const whyChooseUs = [
   {
     icon: ShieldCheck,
     title: 'DRAP licensed',
-    body: 'A registered pharmacy with a named superintendent pharmacist on every order.',
+    body: 'A registered medical store with a named superintendent pharmacist on every order.',
   },
   {
     icon: BadgeCheck,
@@ -63,7 +63,7 @@ const testimonials = [
   },
   {
     quote:
-      'Finally a pharmacy that takes prescriptions seriously. Upload, quick review, delivered sealed. Exactly how it should work.',
+      'Finally a medical store that takes prescriptions seriously. Upload, quick review, delivered sealed. Exactly how it should work.',
     name: 'H. Qureshi',
     city: 'Islamabad',
   },
@@ -125,7 +125,7 @@ export default async function HomePage() {
             </span>
 
             <h1 className="max-w-2xl text-h1 md:text-display">
-              Your Trusted Online <span className="text-blue-600">Pharmacy</span> &amp;{' '}
+              Your Trusted Online <span className="text-blue-600">Medical Store</span> &amp;{' '}
               <span className="text-blue-600">Lab</span>
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-gray-500">
@@ -189,7 +189,7 @@ export default async function HomePage() {
         <div id="home-categories">
           <SectionHeader
             title="Shop by category"
-            subtitle="Everything a pharmacy shelf holds, organised the way you look for it"
+            subtitle="Everything our store shelves hold, organised the way you look for it"
             href="/pharmacy"
             linkLabel="All medicines"
           />
@@ -229,7 +229,7 @@ export default async function HomePage() {
           <div id="home-featured">
             <SectionHeader
               title="Featured products"
-              subtitle="Pharmacy essentials our customers reorder"
+              subtitle="Everyday essentials our customers reorder"
               href="/pharmacy"
             />
           </div>

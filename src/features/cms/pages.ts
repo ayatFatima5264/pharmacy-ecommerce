@@ -34,7 +34,7 @@ export const CMS_DEFAULTS: Record<string, { title: string; body: string }> = {
   },
   returns: {
     title: 'Return Policy',
-    body: `Medicines cannot be returned once dispatched, in line with pharmacy regulations — except when an item arrives damaged, expired, or incorrect. In those cases contact us within 48 hours of delivery and we will replace it or refund you in full.\n\nUnopened medical devices and personal-care items can be returned within 7 days of delivery.\n\nLab bookings can be rescheduled or cancelled free of charge up to 12 hours before the collection slot.\n\nRefunds are issued to the original payment method, or as cash-on-delivery reversal for COD orders, within 5–7 business days.`,
+    body: `Medicines cannot be returned once dispatched, in line with DRAP regulations — except when an item arrives damaged, expired, or incorrect. In those cases contact us within 48 hours of delivery and we will replace it or refund you in full.\n\nUnopened medical devices and personal-care items can be returned within 7 days of delivery.\n\nLab bookings can be rescheduled or cancelled free of charge up to 12 hours before the collection slot.\n\nRefunds are issued to the original payment method, or as cash-on-delivery reversal for COD orders, within 5–7 business days.`,
   },
 }
 

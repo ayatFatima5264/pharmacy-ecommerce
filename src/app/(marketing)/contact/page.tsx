@@ -123,7 +123,7 @@ export default function ContactPage() {
               <div>
                 <h2 className="text-body-sm font-bold text-red-700">Medical emergency?</h2>
                 <p className="mt-1 text-body-sm leading-relaxed text-gray-600">
-                  We are a pharmacy, not an emergency service. For urgent medical help call Rescue
+                  We are a medical store, not an emergency service. For urgent medical help call Rescue
                   1122 or go to your nearest hospital.
                 </p>
               </div>

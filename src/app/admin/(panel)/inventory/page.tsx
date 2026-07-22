@@ -57,7 +57,7 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
         </div>
       ),
     },
-    { key: 'pharmacy', header: 'Pharmacy', cell: (r) => r.pharmacy, hideOnMobile: true },
+    { key: 'pharmacy', header: 'Branch', cell: (r) => r.pharmacy, hideOnMobile: true },
     {
       key: 'expiry',
       header: 'Expiry',
@@ -193,7 +193,7 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
           },
           {
             key: 'pharmacy',
-            label: 'Pharmacy',
+            label: 'Branch',
             options: PHARMACIES.map((p) => ({ value: p, label: p })),
           },
         ]}

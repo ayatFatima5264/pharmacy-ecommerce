@@ -26,7 +26,7 @@ function TrustBar() {
         </span>
         <span className="flex items-center gap-1.5">
           <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-          DRAP-licensed pharmacy · 100% genuine medicines
+          DRAP-licensed medical store · 100% genuine medicines
         </span>
         <span className="ml-auto">{siteConfig.hours}</span>
       </div>
@@ -157,12 +157,12 @@ export function Header() {
           <Image
             src={siteConfig.logo}
             alt=""
-            width={36}
-            height={36}
+            width={52}
+            height={52}
             priority
-            className="h-9 w-9 rounded-md object-contain"
+            className="h-11 w-11 rounded-md object-contain md:h-[52px] md:w-[52px]"
           />
-          <span className="hidden text-[17px] font-bold leading-tight tracking-[-0.015em] text-gray-900 sm:block">
+          <span className="hidden text-lg font-bold leading-tight tracking-[-0.015em] text-gray-900 sm:block md:text-xl">
             AR Medical <span className="text-blue-600">Store</span>
           </span>
         </Link>

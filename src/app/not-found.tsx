@@ -4,7 +4,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const suggestions = [
-  { label: 'Pharmacy', href: '/pharmacy' },
+  { label: 'Medicines', href: '/pharmacy' },
   { label: 'Lab tests', href: '/lab-tests' },
   { label: 'Health packages', href: '/health-packages' },
   { label: 'Track an order', href: '/track-order' },

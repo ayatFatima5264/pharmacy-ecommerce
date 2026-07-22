@@ -1,5 +1,17 @@
 # Deployment Guide — Sehat Store on Vercel
 
+> **DEPLOYED**: production runs at **https://ar-medical-store.vercel.app**
+> (Vercel project `ar-medical-store`, GitHub `ayatFatima5264/pharmacy-ecommerce`).
+> Notes from the live rollout:
+> - **Hobby plan allows only daily crons** — the outbox drain therefore runs
+>   inline after checkout and admin actions (immediate emails), with the daily
+>   cron as the straggler sweep. On Pro, restore `* * * * *` in `vercel.json`.
+> - Vercel **Deployment Protection (SSO)** was on by team default and made the
+>   whole site private — it is disabled for this project (Settings →
+>   Deployment Protection) and must stay off for a public storefront.
+> - `.env` values are added via CLI with byte-exact stdin — PowerShell pipes
+>   append CRLF, which Vercel rejects for `CRON_SECRET` and would corrupt keys.
+
 The repo is deploy-ready: `vercel.json` carries the cron schedules, security
 headers live in `next.config.mjs`, and every runtime dependency is an
 environment variable. This is the operator's runbook.

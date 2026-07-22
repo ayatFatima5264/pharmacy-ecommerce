@@ -437,6 +437,20 @@ export async function placeOrder(
       return { status: 'error', message: result.message, fieldErrors: result.fieldErrors }
     }
 
+    // Send the queued confirmation NOW, best-effort. The outbox row is already
+    // durably committed with the order; this inline drain gives the customer
+    // their email within the request, and the daily cron sweeps anything a
+    // crash here leaves behind. (Hobby-plan Vercel allows only daily crons —
+    // restore the minutely schedule in vercel.json on Pro.)
+    if (data.email) {
+      try {
+        const { drainEmailOutbox } = await import('@/lib/email/outbox')
+        await drainEmailOutbox()
+      } catch (error) {
+        console.error('[checkout] inline outbox drain failed (cron will retry)', error)
+      }
+    }
+
     revalidatePath('/admin/orders')
     revalidatePath('/admin/lab-bookings')
     revalidatePath('/admin')

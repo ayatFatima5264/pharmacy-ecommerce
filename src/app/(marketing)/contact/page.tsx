@@ -1,12 +1,14 @@
 'use client'
 
 import * as React from 'react'
-import { Check, Clock, Mail, MapPin, Phone, PhoneCall, Send } from 'lucide-react'
+import { Check, Clock, Mail, MapPin, Navigation, Phone, PhoneCall, Send } from 'lucide-react'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Breadcrumbs } from '@/components/shared/primitives'
+import { WhatsAppIcon } from '@/components/shared/social-icons'
 import { siteConfig } from '@/config/site'
+import { whatsappLink } from '@/lib/whatsapp'
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, 'Enter your name'),
@@ -71,10 +73,17 @@ export default function ContactPage() {
 
   const info = [
     { icon: Phone, label: 'Phone', value: siteConfig.phone, href: `tel:${siteConfig.phone.replace(/\s/g, '')}` },
+    { icon: WhatsAppIcon, label: 'WhatsApp', value: siteConfig.whatsapp, href: whatsappLink() },
     { icon: Mail, label: 'Email', value: siteConfig.email, href: `mailto:${siteConfig.email}` },
     { icon: Clock, label: 'Hours', value: siteConfig.hours },
     { icon: MapPin, label: 'Address', value: siteConfig.address },
   ]
+
+  // PLACEHOLDER pin (config/site.ts) — the standard keyless Maps embed, so
+  // swapping coordinates in config moves both the map and the directions link.
+  const { lat, lng } = siteConfig.location
+  const mapEmbedUrl = `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
 
   return (
     <div className="bg-gradient-to-b from-blue-50/40 to-white">
@@ -240,6 +249,94 @@ export default function ContactPage() {
             )}
           </div>
         </div>
+
+        {/* ============ Store location: map + visit card ============ */}
+        <section aria-labelledby="visit-store" className="mt-14">
+          <h2 id="visit-store" className="text-h2">
+            Visit Our <span className="text-blue-600">Store</span>
+          </h2>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+            {/* PLACEHOLDER coordinates — swap in config/site.ts. */}
+            <div className="overflow-hidden rounded-lg border border-gray-200 shadow-e1">
+              <iframe
+                src={mapEmbedUrl}
+                title={`Map showing the location of ${siteConfig.name}`}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-[320px] w-full border-0 md:h-[400px]"
+              />
+            </div>
+
+            <div className="flex h-fit flex-col gap-5 rounded-lg border border-gray-200 bg-white p-6 shadow-e1">
+              <div className="flex gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <div>
+                  <h3 className="text-body font-semibold text-gray-900">{siteConfig.name}</h3>
+                  <p className="mt-1 text-body-sm leading-relaxed text-gray-600">
+                    {siteConfig.address}
+                  </p>
+                </div>
+              </div>
+
+              <dl className="flex flex-col gap-3 border-t border-gray-100 pt-5 text-body-sm">
+                <div className="flex items-center gap-2.5">
+                  <Clock className="h-4 w-4 shrink-0 text-blue-600/70" aria-hidden="true" />
+                  <dt className="text-gray-500">Hours</dt>
+                  <dd className="ml-auto font-semibold text-gray-900">{siteConfig.hours}</dd>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Phone className="h-4 w-4 shrink-0 text-blue-600/70" aria-hidden="true" />
+                  <dt className="text-gray-500">Phone</dt>
+                  <dd className="ml-auto">
+                    <a
+                      href={`tel:${siteConfig.phone.replace(/\s/g, '')}`}
+                      className="rounded-sm font-semibold text-blue-600 hover:underline"
+                    >
+                      {siteConfig.phone}
+                    </a>
+                  </dd>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Mail className="h-4 w-4 shrink-0 text-blue-600/70" aria-hidden="true" />
+                  <dt className="text-gray-500">Email</dt>
+                  <dd className="ml-auto">
+                    <a
+                      href={`mailto:${siteConfig.email}`}
+                      className="break-all rounded-sm font-semibold text-blue-600 hover:underline"
+                    >
+                      {siteConfig.email}
+                    </a>
+                  </dd>
+                </div>
+              </dl>
+
+              <div className="flex flex-col gap-2.5 border-t border-gray-100 pt-5">
+                <a
+                  href={directionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-5 text-body-sm font-semibold text-white transition-colors duration-fast hover:bg-blue-700"
+                >
+                  <Navigation className="h-4 w-4" aria-hidden="true" />
+                  Get Directions
+                </a>
+                <a
+                  href={whatsappLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-green-600 px-5 text-body-sm font-semibold text-white transition-colors duration-fast hover:bg-green-700"
+                >
+                  <WhatsAppIcon className="h-4 w-4" />
+                  Chat on WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )

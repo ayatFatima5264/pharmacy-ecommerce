@@ -29,6 +29,17 @@
   --red-600: #ef4444; /* error fills/borders */
   --red-700: #b91c1c; /* 6.5:1 AA — error text */
 
+  /* Admin status hues. The brand "blue" slot carries teal, so informational
+     and in-transit states get true hues of their own: sky for "in progress",
+     violet for "shipped / in transit". Fills + AA text pairs, like the rest. */
+  --sky-50: #eff6ff;
+  --sky-600: #2563eb; /* 5.2:1 AA */
+  --sky-700: #1d4ed8;
+
+  --purple-50: #f5f3ff;
+  --purple-600: #7c3aed; /* 5.1:1 AA */
+  --purple-700: #6d28d9;
+
   --gray-50: #f8fafc; /* page background */
   --gray-100: #f1f5f9;
   --gray-200: #e2e8f0; /* borders */

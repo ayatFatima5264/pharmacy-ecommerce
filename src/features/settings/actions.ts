@@ -5,7 +5,8 @@ import { authorizeAction } from '@/features/auth/staff/guards'
 import { useDb } from '@/lib/data/source'
 import { supabaseService } from '@/lib/supabase/server'
 import { failure, success, type ActionState } from '@/features/catalog/actions/action-result'
-import { SETTINGS, type SettingKey } from './registry'
+import { SETTINGS, SOCIAL_NETWORKS, type SettingKey } from './registry'
+import { getSetting } from './queries'
 
 /** Writes one settings group: validate → upsert → history snapshot. */
 async function save(key: SettingKey, value: unknown): Promise<ActionState> {
@@ -37,17 +38,54 @@ async function save(key: SettingKey, value: unknown): Promise<ActionState> {
 
   revalidatePath('/admin/settings')
   revalidatePath('/checkout')
+  // The footer renders business info + social links on every storefront page.
+  revalidatePath('/', 'layout')
   return success('Settings saved.')
 }
 
 export async function saveBusinessInfo(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  // Merge over the stored value so the settings page's shorter form can never
+  // wipe the contact-page-only fields (whatsapp, hours, …) back to defaults.
+  const current = await getSetting('business.info')
   return save('business.info', {
+    ...current,
     name: String(formData.get('name') ?? ''),
     tagline: String(formData.get('tagline') ?? ''),
     phone: String(formData.get('phone') ?? ''),
     email: String(formData.get('email') ?? ''),
     address: String(formData.get('address') ?? ''),
   })
+}
+
+/** Contact Information page (V2): the full business-contact record. */
+export async function saveContactInfo(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const current = await getSetting('business.info')
+  return save('business.info', {
+    ...current,
+    name: String(formData.get('name') ?? ''),
+    tagline: String(formData.get('tagline') ?? ''),
+    phone: String(formData.get('phone') ?? ''),
+    whatsapp: String(formData.get('whatsapp') ?? ''),
+    email: String(formData.get('email') ?? ''),
+    address: String(formData.get('address') ?? ''),
+    hours: String(formData.get('hours') ?? ''),
+    emergencyPhone: String(formData.get('emergencyPhone') ?? ''),
+    mapsUrl: String(formData.get('mapsUrl') ?? ''),
+  })
+}
+
+/** Social Media page (V2): per-network URL + visibility toggle. */
+export async function saveSocialLinks(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const value = Object.fromEntries(
+    SOCIAL_NETWORKS.map((network) => [
+      network,
+      {
+        url: String(formData.get(`${network}.url`) ?? '').trim() || '#',
+        enabled: formData.get(`${network}.enabled`) === 'on',
+      },
+    ]),
+  )
+  return save('social.links', value)
 }
 
 export async function saveStoreStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {

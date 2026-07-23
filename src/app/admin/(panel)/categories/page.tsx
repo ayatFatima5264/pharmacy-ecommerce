@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Pencil } from 'lucide-react'
+import { Boxes, FolderTree, FolderX, Package, Pencil } from 'lucide-react'
 import { PageHeader, StatCard, StatusPill } from '@/components/admin/ui'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
@@ -126,14 +126,14 @@ export default async function AdminCategoriesPage({ searchParams }: { searchPara
       <FlashBanner params={params} messages={{ created: 'Category created.' }} />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Categories" value={String(rows.length)} />
-        <StatCard label="Top level" value={String(rows.filter((c) => !c.parentId).length)} />
+        <StatCard label="Categories" icon={Boxes} value={String(rows.length)} />
+        <StatCard label="Top level" icon={FolderTree} value={String(rows.filter((c) => !c.parentId).length)} />
         <StatCard
-          label="Products categorised"
+          label="Products categorised" icon={Package}
           value={String(rows.reduce((sum, c) => sum + c.productCount, 0))}
         />
         <StatCard
-          label="Empty categories"
+          label="Empty categories" icon={FolderX}
           value={String(rows.filter((c) => c.productCount === 0).length)}
           tone={rows.some((c) => c.productCount === 0) ? 'warning' : 'neutral'}
         />

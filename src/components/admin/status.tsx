@@ -15,10 +15,11 @@ const ORDER: Record<AdminOrderStatus, { label: string; tone: Parameters<typeof S
   awaiting_rx: { label: 'Awaiting Rx', tone: 'warning' },
   confirmed: { label: 'Confirmed', tone: 'info' },
   processing: { label: 'Processing', tone: 'info' },
-  shipped: { label: 'Shipped', tone: 'info' },
+  // In-transit gets its own hue so a scan separates "moving" from "working".
+  shipped: { label: 'Shipped', tone: 'accent' },
   delivered: { label: 'Delivered', tone: 'success' },
   delivery_failed: { label: 'Delivery failed', tone: 'danger' },
-  cancelled: { label: 'Cancelled', tone: 'neutral' },
+  cancelled: { label: 'Cancelled', tone: 'danger' },
 }
 
 const PAYMENT: Record<AdminPaymentStatus, { label: string; tone: Parameters<typeof StatusPill>[0]['tone'] }> = {
@@ -29,11 +30,11 @@ const PAYMENT: Record<AdminPaymentStatus, { label: string; tone: Parameters<type
 }
 
 const BOOKING: Record<BookingStatus, { label: string; tone: Parameters<typeof StatusPill>[0]['tone'] }> = {
-  scheduled: { label: 'Scheduled', tone: 'info' },
+  scheduled: { label: 'Scheduled', tone: 'warning' },
   sample_collected: { label: 'Sample collected', tone: 'info' },
-  in_lab: { label: 'In lab', tone: 'info' },
+  in_lab: { label: 'In lab', tone: 'accent' },
   report_ready: { label: 'Report ready', tone: 'success' },
-  cancelled: { label: 'Cancelled', tone: 'neutral' },
+  cancelled: { label: 'Cancelled', tone: 'danger' },
   no_show: { label: 'No show', tone: 'danger' },
 }
 

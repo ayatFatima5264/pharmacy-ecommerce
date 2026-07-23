@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { CheckCircle2, ChevronLeft } from 'lucide-react'
 import { requireCustomer } from '@/features/auth/customer/guards'
 import { getMyOrder } from '@/features/account/queries'
+import { OrderReviewPanel } from '@/features/reviews/components/order-review-panel'
 import { isSupabaseConfigured } from '@/config/env'
 import { PAYMENT_METHODS } from '@/config/locations'
 import { formatDate, formatDateTime, formatPrice } from '@/lib/utils'
@@ -39,7 +40,7 @@ export default async function MyOrderDetailPage({
 }: {
   params: Promise<{ orderNumber: string }>
 }) {
-  await requireCustomer('/account/orders')
+  const customer = await requireCustomer('/account/orders')
   const { orderNumber } = await params
   if (!isSupabaseConfigured()) notFound()
 
@@ -131,6 +132,12 @@ export default async function MyOrderDetailPage({
           </ul>
         </div>
       </div>
+
+      {/* Reviews start HERE — a delivered order is the only door in, which is
+          what makes every review a verified purchase. */}
+      {order.status === 'delivered' && (
+        <OrderReviewPanel orderNumber={order.orderNumber} userId={customer.id} />
+      )}
     </div>
     </div>
   )

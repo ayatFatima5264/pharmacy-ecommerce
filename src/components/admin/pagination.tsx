@@ -111,7 +111,7 @@ function PageLink({
   className?: string
 }) {
   const base = cn(
-    'tabular flex h-9 min-w-9 items-center justify-center rounded-sm px-2.5 text-[13px] font-semibold',
+    'tabular flex h-9 min-w-9 items-center justify-center rounded-md px-2.5 text-[13px] font-semibold',
     className,
   )
 
@@ -135,7 +135,7 @@ function PageLink({
         'transition-colors duration-fast',
         current
           ? 'bg-blue-600 text-white shadow-e1'
-          : 'border border-gray-200 bg-white text-gray-700 hover:border-blue-200 hover:bg-blue-50/40 hover:text-blue-700',
+          : 'border border-gray-200 bg-white text-gray-700 hover:border-blue-600/30 hover:bg-blue-50/50 hover:text-blue-700',
       )}
     >
       {children}

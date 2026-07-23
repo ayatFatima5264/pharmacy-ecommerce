@@ -1,5 +1,6 @@
-import { Plus } from 'lucide-react'
+import { AlertTriangle, Plus, Tag, Ticket, Zap } from 'lucide-react'
 import { PageHeader, StatCard, StatusPill } from '@/components/admin/ui'
+import { SegmentedTabs } from '@/components/admin/blocks'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
 import { Pagination } from '@/components/admin/pagination'
@@ -150,15 +151,28 @@ export default async function AdminCouponsPage({ searchParams }: { searchParams:
       />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Coupons" value={String(adminCoupons.length)} />
-        <StatCard label="Live now" value={String(live)} tone="success" />
-        <StatCard label="Total redemptions" value={totalRedemptions.toLocaleString('en-PK')} />
+        <StatCard label="Coupons" icon={Tag} value={String(adminCoupons.length)} />
+        <StatCard label="Live now" icon={Zap} value={String(live)} tone="success" />
+        <StatCard label="Total redemptions" icon={Ticket} value={totalRedemptions.toLocaleString('en-PK')} />
         <StatCard
-          label="Limit reached"
+          label="Limit reached" icon={AlertTriangle}
           value={String(adminCoupons.filter((c) => couponState(c, now).label === 'Limit reached').length)}
           tone="warning"
         />
       </div>
+
+      <SegmentedTabs
+        label="Coupon state"
+        tabs={[
+          { label: 'All', href: '/admin/coupons', active: !state, count: adminCoupons.length },
+          ...(['live', 'scheduled', 'expired', 'disabled', 'limit reached'] as const).map((value) => ({
+            label: value.charAt(0).toUpperCase() + value.slice(1),
+            href: `/admin/coupons?state=${encodeURIComponent(value)}`,
+            active: state === value,
+            count: adminCoupons.filter((c) => couponState(c, now).label.toLowerCase() === value).length,
+          })),
+        ]}
+      />
 
       <FilterBar
         searchPlaceholder="Search coupon code…"
@@ -170,17 +184,6 @@ export default async function AdminCouponsPage({ searchParams }: { searchParams:
               { value: 'percentage', label: 'Percentage' },
               { value: 'fixed_amount', label: 'Fixed amount' },
               { value: 'free_shipping', label: 'Free shipping' },
-            ],
-          },
-          {
-            key: 'state',
-            label: 'State',
-            options: [
-              { value: 'live', label: 'Live' },
-              { value: 'scheduled', label: 'Scheduled' },
-              { value: 'expired', label: 'Expired' },
-              { value: 'disabled', label: 'Disabled' },
-              { value: 'limit reached', label: 'Limit reached' },
             ],
           },
         ]}

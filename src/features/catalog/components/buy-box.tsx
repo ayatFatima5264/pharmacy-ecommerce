@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Lock, RotateCcw, ShieldCheck, Truck, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Price, RxBadge, StockIndicator } from '@/components/shared/primitives'
+import { RatingStars } from '@/components/shared/rating-stars'
 import { AddToCart, QuantityStepper } from '@/features/cart/components/add-to-cart'
 import { useCart } from '@/features/cart/cart-context'
 import { cn, deliveryEstimate, formatUnitPrice } from '@/lib/utils'
@@ -78,6 +79,19 @@ export function BuyBox({ product, brandName }: { product: Product; brandName: st
             arrive holding a note that lists a molecule, not a brand. */}
         {product.genericName && (
           <p className="mt-1.5 text-body text-gray-500">{product.genericName}</p>
+        )}
+        {/* Aggregate rating links to the reviews section further down. */}
+        {product.rating && product.rating.count > 0 && (
+          <a
+            href="#reviews"
+            className="mt-2.5 flex w-fit items-center gap-1.5 rounded-sm text-body-sm text-gray-500 transition-colors duration-fast hover:text-blue-600"
+          >
+            <RatingStars rating={product.rating.average} />
+            <span className="font-semibold text-gray-900">{product.rating.average.toFixed(1)}</span>
+            <span>
+              ({product.rating.count} review{product.rating.count === 1 ? '' : 's'})
+            </span>
+          </a>
         )}
       </div>
 

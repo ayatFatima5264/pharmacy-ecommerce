@@ -1,9 +1,22 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronLeft, Clock, Lock, Mail, MapPin, Microscope, Phone } from 'lucide-react'
-import { PageHeader, Panel, StatusPill } from '@/components/admin/ui'
+import {
+  Banknote,
+  CalendarClock,
+  ChevronLeft,
+  Clock,
+  Lock,
+  Mail,
+  MapPin,
+  Microscope,
+  Phone,
+  ShoppingBag,
+  StickyNote,
+} from 'lucide-react'
+import { Panel, StatusPill } from '@/components/admin/ui'
+import { Avatar, MetaItem } from '@/components/admin/blocks'
 import { StatusControl, ResendEmailButton } from '@/features/orders/components/status-control'
-import { requirePermission } from '@/features/auth/staff/guards'
+import { can, requirePermission } from '@/features/auth/staff/guards'
 import { findOrderByNumber } from '@/lib/data/orders-store'
 import { findBookingsByOrder } from '@/lib/data/lab-store'
 import { useDb } from '@/lib/data/source'
@@ -23,6 +36,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Params 
   // Page-level guard. The status action re-checks independently, because a
   // Server Action can be invoked without this page ever rendering.
   await requirePermission('orders.view')
+  const canUpdateStatus = await can('orders.update_status')
 
   const { orderNumber } = await params
   const decoded = decodeURIComponent(orderNumber)
@@ -53,11 +67,54 @@ export default async function AdminOrderDetailPage({ params }: { params: Params 
         Back to orders
       </Link>
 
-      <PageHeader
-        title={order.orderNumber}
-        description={`Placed ${formatDateTime(order.placedAt)}`}
-        action={<StatusPill tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</StatusPill>}
-      />
+      {/* ERP-style header band: identity on the left, the three numbers every
+          question about this order starts from on the right. */}
+      <header className="mb-6 rounded-lg border border-gray-200/80 bg-white p-6 shadow-e1">
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="tabular text-[26px] font-bold leading-tight tracking-[-0.02em] text-gray-900">
+                {order.orderNumber}
+              </h1>
+              <StatusPill tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</StatusPill>
+            </div>
+            <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-gray-500">
+              <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
+              Placed {formatDateTime(order.placedAt)}
+            </p>
+          </div>
+
+          <dl className="flex flex-wrap gap-x-10 gap-y-3">
+            <div>
+              <dt className="flex items-center gap-1.5 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-gray-400">
+                <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
+                Total
+              </dt>
+              <dd className="tabular mt-1 text-[20px] font-bold leading-none text-gray-900">
+                {formatPrice(order.totalPaisa)}
+              </dd>
+            </div>
+            <div>
+              <dt className="flex items-center gap-1.5 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-gray-400">
+                <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
+                Items
+              </dt>
+              <dd className="tabular mt-1 text-[20px] font-bold leading-none text-gray-900">
+                {order.items.length}
+              </dd>
+            </div>
+            <div>
+              <dt className="flex items-center gap-1.5 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-gray-400">
+                <Banknote className="h-3.5 w-3.5" aria-hidden="true" />
+                Payment
+              </dt>
+              <dd className="mt-1 text-[20px] font-bold leading-none text-gray-900">
+                {method?.label ?? order.paymentMethod}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </header>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px] lg:items-start">
         <div className="flex flex-col gap-4">
@@ -150,11 +207,20 @@ export default async function AdminOrderDetailPage({ params }: { params: Params 
                 {STATUS_LABELS[status].toLowerCase()}.
               </p>
             ) : (
-              <ol className="flex flex-col gap-3">
+              // Timeline: newest first, a connected rail so the order's journey
+              // reads as one line rather than a list of isolated events.
+              <ol className="relative flex flex-col gap-5 before:absolute before:bottom-2 before:left-[7px] before:top-2 before:w-px before:bg-gray-200">
                 {[...order.statusHistory].reverse().map((entry, i) => (
-                  <li key={i} className="flex gap-3 text-[13px]">
-                    <Clock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden="true" />
-                    <div>
+                  <li key={i} className="relative flex gap-4 text-[13px]">
+                    <span
+                      className={`relative z-10 mt-0.5 flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full ring-4 ring-white ${
+                        i === 0 ? 'bg-blue-600' : 'bg-gray-200'
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {i === 0 && <Clock className="h-2.5 w-2.5 text-white" />}
+                    </span>
+                    <div className="min-w-0">
                       <p className="text-gray-900">
                         <span className="text-gray-500">{STATUS_LABELS[entry.from as OrderStatus]}</span>
                         {' → '}
@@ -162,10 +228,14 @@ export default async function AdminOrderDetailPage({ params }: { params: Params 
                           {STATUS_LABELS[entry.to as OrderStatus]}
                         </strong>
                       </p>
-                      <p className="text-gray-500">
+                      <p className="mt-0.5 text-[12.5px] text-gray-500">
                         {formatDateTime(entry.at)} by {entry.byUserName}
                       </p>
-                      {entry.note && <p className="mt-0.5 text-gray-700">{entry.note}</p>}
+                      {entry.note && (
+                        <p className="mt-1.5 rounded-md bg-gray-50 px-2.5 py-1.5 text-gray-700">
+                          {entry.note}
+                        </p>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -176,52 +246,56 @@ export default async function AdminOrderDetailPage({ params }: { params: Params 
 
         <div className="flex flex-col gap-4">
           <Panel title="Update status">
-            <StatusControl
-              orderNumber={order.orderNumber}
-              current={status}
-              hasEmail={Boolean(order.email)}
-            />
+            {canUpdateStatus ? (
+              <StatusControl
+                orderNumber={order.orderNumber}
+                current={status}
+                hasEmail={Boolean(order.email)}
+              />
+            ) : (
+              <div className="flex items-start gap-2.5 rounded-md bg-gray-50 p-3.5 text-[12.5px] leading-relaxed text-gray-500">
+                <Lock className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
+                <p>
+                  Your role can monitor orders but not change their status. Please contact your
+                  Administrator if this order needs an update.
+                </p>
+              </div>
+            )}
           </Panel>
 
           <Panel title="Customer">
-            <dl className="flex flex-col gap-2.5 text-[13px]">
-              <div>
-                <dt className="text-gray-500">Name</dt>
-                <dd className="font-semibold text-gray-900">
+            <div className="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
+              <Avatar name={`${order.firstName} ${order.lastName}`} size="lg" />
+              <div className="min-w-0">
+                <p className="truncate text-[14px] font-bold text-gray-900">
                   {order.firstName} {order.lastName}
-                </dd>
+                </p>
+                <Link
+                  href={`/admin/customers?q=${encodeURIComponent(`${order.firstName} ${order.lastName}`)}`}
+                  className="text-[12.5px] font-semibold text-blue-600 hover:underline"
+                >
+                  View customer
+                </Link>
               </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-gray-500">
-                  <Phone className="h-3 w-3" aria-hidden="true" />
-                  Phone
-                </dt>
-                <dd className="tabular text-gray-900">{order.phone}</dd>
-              </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-gray-500">
-                  <Mail className="h-3 w-3" aria-hidden="true" />
-                  Email
-                </dt>
-                <dd className="break-all text-gray-900">{order.email ?? 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-gray-500">
-                  <MapPin className="h-3 w-3" aria-hidden="true" />
-                  Delivering to
-                </dt>
-                <dd className="text-gray-900">
-                  {order.address}, {order.city}, {order.province}
-                  {order.postalCode ? ` ${order.postalCode}` : ''}
-                </dd>
-              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <MetaItem icon={Phone} label="Phone">
+                <span className="tabular">{order.phone}</span>
+              </MetaItem>
+              <MetaItem icon={Mail} label="Email">
+                <span className="break-all">{order.email ?? 'Not provided'}</span>
+              </MetaItem>
+              <MetaItem icon={MapPin} label="Delivering to">
+                {order.address}, {order.city}, {order.province}
+                {order.postalCode ? ` ${order.postalCode}` : ''}
+              </MetaItem>
               {order.notes && (
-                <div>
-                  <dt className="text-gray-500">Customer note</dt>
-                  <dd className="text-gray-900">{order.notes}</dd>
-                </div>
+                <MetaItem icon={StickyNote} label="Customer note">
+                  {order.notes}
+                </MetaItem>
               )}
-            </dl>
+            </div>
           </Panel>
 
           <Panel title="Payment & notifications">

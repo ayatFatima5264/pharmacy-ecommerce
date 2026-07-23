@@ -31,8 +31,8 @@ export function SubmitButton({
       disabled={pending || props.disabled}
       aria-busy={pending || undefined}
       className={cn(
-        'inline-flex h-9 items-center justify-center gap-2 rounded-sm px-4 text-[13.5px] font-semibold',
-        'transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2',
+        'inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-[13.5px] font-semibold shadow-e1',
+        'transition-all duration-medium hover:shadow-e2 focus-visible:outline-none focus-visible:ring-2',
         'focus-visible:ring-blue-600 focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 disabled:border-transparent',
         variantClass,
@@ -61,8 +61,8 @@ export function FormBanner({ state }: { state: ActionState }) {
       role={isError ? 'alert' : 'status'}
       aria-live={isError ? 'assertive' : 'polite'}
       className={cn(
-        'mb-4 flex items-start gap-2.5 rounded-sm p-3.5 text-[13.5px]',
-        isError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700',
+        'mb-4 flex items-start gap-2.5 rounded-md p-3.5 text-[13.5px] ring-1 ring-inset',
+        isError ? 'bg-red-50 text-red-700 ring-red-600/15' : 'bg-green-50 text-green-700 ring-green-600/15',
       )}
     >
       {isError ? (
@@ -121,7 +121,7 @@ export function AdminField({
 }
 
 const controlClass =
-  'w-full rounded-sm border border-gray-200 bg-white px-3 text-[13.5px] text-gray-900 ' +
+  'w-full rounded-md border border-gray-200 bg-white px-3 text-[13.5px] text-gray-900 ' +
   'placeholder:text-gray-400 transition-colors duration-fast ' +
   'focus:border-blue-600 focus:outline-none focus:ring-[3px] focus:ring-blue-100 ' +
   'disabled:bg-gray-50 disabled:text-gray-400 aria-[invalid=true]:border-red-600'
@@ -184,7 +184,7 @@ export function FormSection({
   className?: string
 }) {
   return (
-    <section className={cn('rounded-md border border-gray-200 bg-white p-5', className)}>
+    <section className={cn('rounded-lg border border-gray-200/80 bg-white p-5 shadow-e1', className)}>
       <h2 className="text-[14px] font-bold text-gray-900">{title}</h2>
       {description && <p className="mt-1 text-[12.5px] text-gray-500">{description}</p>}
       <div className="mt-4">{children}</div>

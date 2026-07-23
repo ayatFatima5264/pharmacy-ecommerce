@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Banknote, CheckCircle2, Map, MapPin, Plus } from 'lucide-react'
 import { PageHeader, StatCard, StatusPill } from '@/components/admin/ui'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
@@ -111,17 +111,17 @@ export default async function AdminShippingPage({ searchParams }: { searchParams
       />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Zones" value={String(adminShippingZones.length)} />
+        <StatCard label="Zones" icon={Map} value={String(adminShippingZones.length)} />
         <StatCard
-          label="Active"
+          label="Active" icon={CheckCircle2}
           value={String(adminShippingZones.filter((z) => z.isActive).length)}
           tone="success"
         />
         <StatCard
-          label="Cities covered"
+          label="Cities covered" icon={MapPin}
           value={String(new Set(adminShippingZones.flatMap((z) => z.cities)).size)}
         />
-        <StatCard label="No COD" value={String(noCod)} tone={noCod > 0 ? 'warning' : 'neutral'} />
+        <StatCard label="No COD" icon={Banknote} value={String(noCod)} tone={noCod > 0 ? 'warning' : 'neutral'} />
       </div>
 
       <FilterBar

@@ -39,6 +39,15 @@ export interface ProductImage {
   alt: string
 }
 
+/** Aggregate of APPROVED reviews. Absent (undefined) when a product has no
+ *  approved reviews yet or the catalog is scaffold-served — the UI hides
+ *  rating rows entirely rather than showing a fake zero. */
+export interface RatingSummary {
+  /** Mean of approved ratings, one decimal (e.g. 4.3). */
+  average: number
+  count: number
+}
+
 export interface Product {
   id: string
   slug: string
@@ -60,6 +69,7 @@ export interface Product {
   sideEffects: string[]
   warnings: string[]
   variants: ProductVariant[]
+  rating?: RatingSummary
 }
 
 export interface LabTest {

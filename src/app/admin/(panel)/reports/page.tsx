@@ -1,4 +1,4 @@
-import { Download } from 'lucide-react'
+import { Banknote, Download, Microscope, Receipt, Wallet } from 'lucide-react'
 import { BarChart, PageHeader, Panel, StatCard } from '@/components/admin/ui'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { Button } from '@/components/ui/button'
@@ -60,28 +60,6 @@ export default async function AdminReportsPage() {
     },
   ]
 
-  const productColumns: Column<(typeof topProducts)[number]>[] = [
-    {
-      key: 'product',
-      header: 'Product',
-      primary: true,
-      cell: (p) => (
-        <span className="flex items-center gap-2.5">
-          <span className="text-base" aria-hidden="true">{p.icon}</span>
-          <span className="truncate font-semibold text-gray-900">{p.name}</span>
-        </span>
-      ),
-    },
-    { key: 'brand', header: 'Brand', cell: (p) => p.brandName, hideOnMobile: true },
-    { key: 'units', header: 'Units', align: 'right', cell: (p) => <span className="tabular">{p.unitsSold}</span> },
-    {
-      key: 'revenue',
-      header: 'Revenue',
-      align: 'right',
-      cell: (p) => <span className="tabular font-semibold text-gray-900">{formatPrice(p.revenuePaisa)}</span>,
-    },
-  ]
-
   return (
     <>
       <PageHeader
@@ -96,18 +74,26 @@ export default async function AdminReportsPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Revenue (delivered)" value={formatPrice(metrics.revenuePaisa)} delta="↑ 12% vs last month" />
-        <StatCard label="Average order" value={formatPrice(metrics.averageOrderPaisa)} />
-        <StatCard label="Lab bookings" value={String(adminBookings.length)} />
-        <StatCard label="COD uncollected" value={formatPrice(metrics.codPendingPaisa)} tone="warning" />
+        <StatCard label="Revenue (delivered)" icon={Banknote} value={formatPrice(metrics.revenuePaisa)} delta="↑ 12% vs last month" />
+        <StatCard label="Average order" icon={Receipt} value={formatPrice(metrics.averageOrderPaisa)} />
+        <StatCard label="Lab bookings" icon={Microscope} value={String(adminBookings.length)} />
+        <StatCard label="COD uncollected" icon={Wallet} value={formatPrice(metrics.codPendingPaisa)} tone="warning" />
       </div>
 
-      <Panel title="Revenue, last 14 days" className="mt-4">
-        <BarChart
-          data={series.map((point) => ({ label: point.label, value: point.revenuePaisa }))}
-          format={formatPrice}
-        />
-      </Panel>
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <Panel title="Revenue, last 14 days">
+          <BarChart
+            data={series.map((point) => ({ label: point.label, value: point.revenuePaisa }))}
+            format={formatPrice}
+          />
+        </Panel>
+        <Panel title="Orders, last 14 days">
+          <BarChart
+            data={series.map((point) => ({ label: point.label, value: point.orderCount }))}
+            format={(value) => `${value} order${value === 1 ? '' : 's'}`}
+          />
+        </Panel>
+      </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <Panel title="Payment mix">
@@ -167,15 +153,48 @@ export default async function AdminReportsPage() {
         </Panel>
       </div>
 
-      <section className="mt-6">
-        <h2 className="mb-3 text-[14px] font-bold text-gray-900">Revenue by city</h2>
-        <DataTable columns={cityColumns} rows={byCity} rowKey={(r) => r.city} caption="Revenue by city" />
-      </section>
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        {/* Ranked bars, not a table: comparison is the question here, and
+            length answers it faster than digits. */}
+        <Panel title="Top products by revenue">
+          {(() => {
+            const maxRevenue = Math.max(...topProducts.map((p) => p.revenuePaisa), 1)
+            return (
+              <ol className="flex flex-col gap-4">
+                {topProducts.map((product, i) => (
+                  <li key={product.id}>
+                    <div className="mb-1.5 flex items-baseline justify-between gap-3">
+                      <span className="flex min-w-0 items-center gap-2.5">
+                        <span className="tabular flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gray-100 text-[11px] font-bold text-gray-500">
+                          {i + 1}
+                        </span>
+                        <span className="text-base" aria-hidden="true">{product.icon}</span>
+                        <span className="truncate text-[13px] font-semibold text-gray-900">
+                          {product.name}
+                        </span>
+                      </span>
+                      <span className="tabular shrink-0 text-[12.5px] text-gray-500">
+                        {product.unitsSold} units · <span className="font-semibold text-gray-900">{formatPrice(product.revenuePaisa)}</span>
+                      </span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                      <span
+                        className="block h-full rounded-full bg-gradient-to-r from-blue-600 to-blue-500"
+                        style={{ width: `${Math.max(2, (product.revenuePaisa / maxRevenue) * 100)}%` }}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )
+          })()}
+        </Panel>
 
-      <section className="mt-6">
-        <h2 className="mb-3 text-[14px] font-bold text-gray-900">Top products</h2>
-        <DataTable columns={productColumns} rows={topProducts} rowKey={(p) => p.id} caption="Top products" />
-      </section>
+        <section>
+          <h2 className="mb-3 text-[14px] font-bold text-gray-900">Revenue by city</h2>
+          <DataTable columns={cityColumns} rows={byCity} rowKey={(r) => r.city} caption="Revenue by city" />
+        </section>
+      </div>
     </>
   )
 }

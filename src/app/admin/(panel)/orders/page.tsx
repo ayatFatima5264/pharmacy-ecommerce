@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Lock, Microscope } from 'lucide-react'
+import { Banknote, ClipboardCheck, Lock, Microscope, Receipt, ShoppingBag } from 'lucide-react'
 import { PageHeader, StatCard } from '@/components/admin/ui'
+import { Avatar, SegmentedTabs } from '@/components/admin/blocks'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
 import { Pagination } from '@/components/admin/pagination'
@@ -66,6 +67,27 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
 
   const result = paginate(filtered, parsePage(params.page))
 
+  // Shopify-style status tabs. Hrefs keep the other live filters (q, payment,
+  // city) so switching status never silently discards a search.
+  function tabHref(target?: string) {
+    const qs = new URLSearchParams()
+    if (query) qs.set('q', query)
+    if (payment) qs.set('payment', payment)
+    if (city) qs.set('city', city)
+    if (target) qs.set('status', target)
+    const s = qs.toString()
+    return s ? `/admin/orders?${s}` : '/admin/orders'
+  }
+  const statusTabs = [
+    { label: 'All', href: tabHref(), active: !status, count: adminOrders.length },
+    ...orderStatusOptions.map((option) => ({
+      label: option.label,
+      href: tabHref(option.value),
+      active: status === option.value,
+      count: adminOrders.filter((o) => o.status === option.value).length,
+    })),
+  ]
+
   const columns: Column<AdminOrder>[] = [
     {
       key: 'orderNumber',
@@ -96,13 +118,16 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
       cell: (order) => (
         <Link
           href={`/admin/customers?q=${encodeURIComponent(order.customerName)}`}
-          className="rounded-sm hover:text-blue-600 hover:underline"
+          className="flex items-center gap-2.5 rounded-sm hover:text-blue-600"
         >
-          {order.customerName}
+          <Avatar name={order.customerName} />
+          <span className="min-w-0">
+            <span className="block truncate font-medium">{order.customerName}</span>
+            <span className="block truncate text-[12px] text-gray-500">{order.city}</span>
+          </span>
         </Link>
       ),
     },
-    { key: 'city', header: 'City', cell: (o) => o.city, hideOnMobile: true },
     {
       key: 'placedAt',
       header: 'Placed',
@@ -141,20 +166,21 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
       <PageHeader title="Orders" description="Every order across medicines and diagnostics." />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Total orders" value={String(adminOrders.length)} />
+        <StatCard label="Total orders" icon={ShoppingBag} value={String(adminOrders.length)} />
         <StatCard
-          label="Awaiting Rx"
+          label="Awaiting Rx" icon={ClipboardCheck}
           value={String(metrics.awaitingRx)}
           tone={metrics.awaitingRx > 0 ? 'warning' : 'neutral'}
         />
-        <StatCard label="COD uncollected" value={formatPrice(metrics.codPendingPaisa)} tone="warning" />
-        <StatCard label="Average order" value={formatPrice(metrics.averageOrderPaisa)} />
+        <StatCard label="COD uncollected" icon={Banknote} value={formatPrice(metrics.codPendingPaisa)} tone="warning" />
+        <StatCard label="Average order" icon={Receipt} value={formatPrice(metrics.averageOrderPaisa)} />
       </div>
 
+      <SegmentedTabs tabs={statusTabs} label="Order status" />
+
       <FilterBar
-        searchPlaceholder="Search order number, customer, cityâ€¦"
+        searchPlaceholder="Search order number, customer, city…"
         selects={[
-          { key: 'status', label: 'Status', options: orderStatusOptions },
           {
             key: 'payment',
             label: 'Payment',

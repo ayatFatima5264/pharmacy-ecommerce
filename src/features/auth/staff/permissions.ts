@@ -30,8 +30,10 @@ export const PERMISSIONS = [
   'lab.view',
   'lab.manage',
   'rx.verify',
+  'reviews.moderate',
   'reports.view',
   'settings.manage',
+  'users.manage',
 ] as const
 
 export type Permission = (typeof PERMISSIONS)[number]
@@ -43,20 +45,23 @@ export const ROLE_PERMISSIONS: Record<RoleKey, Permission[]> = {
   manager: [
     'orders.view', 'orders.update_status', 'orders.refund',
     'products.view', 'products.manage', 'inventory.manage',
-    'customers.view', 'lab.view', 'lab.manage', 'reports.view',
+    'customers.view', 'lab.view', 'lab.manage', 'reviews.moderate', 'reports.view',
   ],
   // A pharmacist verifies prescriptions. That is a licensed professional act,
   // so the permission is theirs alone — an admin cannot self-grant clinical
   // authority by virtue of seniority.
   pharmacist: ['orders.view', 'orders.update_status', 'products.view', 'inventory.manage', 'rx.verify'],
-  support: ['orders.view', 'customers.view', 'lab.view'],
+  // "Staff" — the monitoring role: sees the store run, changes nothing.
+  // (No reports.view: financial rollups stay admin/manager-only, and the
+  // security suite asserts it.)
+  support: ['orders.view', 'customers.view', 'lab.view', 'products.view'],
 }
 
 export const ROLE_LABELS: Record<RoleKey, string> = {
   admin: 'Administrator',
   manager: 'Store manager',
   pharmacist: 'Pharmacist',
-  support: 'Support agent',
+  support: 'Staff',
 }
 
 /** Display precedence when an account holds several roles. */

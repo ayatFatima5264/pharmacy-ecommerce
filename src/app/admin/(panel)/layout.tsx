@@ -46,9 +46,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         badges={{ awaitingRx: metrics.awaitingRx, pendingBookings: metrics.pendingBookings }}
       />
 
-      <div className="lg:pl-60">
+      {/* Left padding tracks the sidebar's collapse state via CSS variable. */}
+      <div className="transition-[padding] duration-slow lg:pl-[var(--admin-rail,16rem)]">
         <AdminUserMenu user={user} unreadCount={unreadCount} />
-        <main id="admin-main" className="mx-auto max-w-[1400px] p-4 md:p-6">
+        <main id="admin-main" className="mx-auto max-w-[1400px] p-4 md:p-6 lg:p-8">
           {children}
         </main>
       </div>

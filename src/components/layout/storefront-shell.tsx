@@ -1,6 +1,7 @@
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { BottomNav } from '@/components/layout/bottom-nav'
+import { WhatsAppButton } from '@/components/shared/whatsapp-button'
 import { CartProvider } from '@/features/cart/cart-context'
 import { getCartCatalog } from '@/features/cart/catalog-snapshot'
 
@@ -28,6 +29,7 @@ export async function StorefrontShell({ children }: { children: React.ReactNode 
         </main>
         <Footer />
         <BottomNav />
+        <WhatsAppButton />
       </div>
     </CartProvider>
   )

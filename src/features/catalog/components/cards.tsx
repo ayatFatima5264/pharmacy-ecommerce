@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Clock, Droplet, Utensils } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { MediaPlaceholder, Price, RxBadge, StockIndicator } from '@/components/shared/primitives'
+import { RatingStars } from '@/components/shared/rating-stars'
 import { AddToCart } from '@/features/cart/components/add-to-cart'
 import { QuickViewButton, WishlistHeart } from './card-extras'
 import { defaultVariant, getBrandName, isInStock } from '@/lib/data/queries'
@@ -89,6 +90,16 @@ export function ProductCard({ product }: { product: Product }) {
           {product.genericName ?? product.shortDescription}
           {variant.packSize ? ` · ${variant.packSize}` : ''}
         </p>
+
+        {/* Aggregate rating — only when approved reviews exist; no fake zeros. */}
+        {product.rating && product.rating.count > 0 && (
+          <span className="flex items-center gap-1.5">
+            <RatingStars rating={product.rating.average} />
+            <span className="text-caption text-gray-500">
+              {product.rating.average.toFixed(1)} ({product.rating.count})
+            </span>
+          </span>
+        )}
 
         <Price
           pricePaisa={variant.pricePaisa}

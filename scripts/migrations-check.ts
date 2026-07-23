@@ -121,7 +121,7 @@ async function main() {
       'lab_bookings', 'lab_booking_items', 'lab_reports', 'shipping_zones',
       'shipping_zone_areas', 'shipping_methods', 'shipping_rates', 'shipments',
       'shipment_items', 'payments', 'refunds', 'cod_collections', 'rate_limits',
-      'email_outbox',
+      'email_outbox', 'product_reviews', 'product_review_images',
     ]
     const { rows: tables } = await db.query<{ tablename: string }>(
       `select tablename from pg_tables where schemaname = 'public'`,

@@ -6,6 +6,8 @@ import { BuyBox, StickyBuyBar } from '@/features/catalog/components/buy-box'
 import { ProductCard } from '@/features/catalog/components/cards'
 import { ProductGallery } from '@/features/catalog/components/product-gallery'
 import { ProductTabs, type ProductTab } from '@/features/catalog/components/product-tabs'
+import { ProductReviewsSection } from '@/features/reviews/components/product-reviews-section'
+import { getApprovedReviews } from '@/features/reviews/queries'
 import {
   getBrandName,
   getProductBySlug,
@@ -48,14 +50,17 @@ export default async function ProductPage({ params }: { params: Params }) {
   const product = await getProductBySlug(slug)
   if (!product) notFound()
 
-  const [related, generics] = await Promise.all([
+  const [related, generics, reviews] = await Promise.all([
     getRelatedProducts(product),
     getSimilarGenerics(product),
+    getApprovedReviews(product.id),
   ])
   const brandName = getBrandName(product.brandId)
 
   // Product structured data. Rendered server-side so crawlers see it in the
-  // initial HTML.
+  // initial HTML. AggregateRating/review appear only when approved reviews
+  // exist — schema.org forbids a zero-count rating, and the numbers must
+  // match the visible reviews section below.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -72,6 +77,29 @@ export default async function ProductPage({ params }: { params: Params }) {
         : 'https://schema.org/OutOfStock',
       seller: { '@type': 'Organization', name: siteConfig.name },
     },
+    ...(product.rating && product.rating.count > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: product.rating.average,
+            reviewCount: product.rating.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reviews.slice(0, 10).map((r) => ({
+            '@type': 'Review',
+            author: { '@type': 'Person', name: r.reviewerName },
+            datePublished: r.createdAt.slice(0, 10),
+            reviewBody: r.body,
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: r.rating,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          })),
+        }
+      : {}),
   }
 
   // Tab content is assembled here, server-side, so it ships in the initial
@@ -274,6 +302,9 @@ export default async function ProductPage({ params }: { params: Params }) {
           </ul>
         </section>
       )}
+
+      {/* ================= Customer reviews ================= */}
+      <ProductReviewsSection product={product} />
 
       {/* ================= Related products ================= */}
       {related.length > 0 && (

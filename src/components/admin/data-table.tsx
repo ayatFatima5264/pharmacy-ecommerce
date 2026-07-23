@@ -1,4 +1,6 @@
 import * as React from 'react'
+import { Inbox } from 'lucide-react'
+import { AdminEmptyState } from '@/components/admin/blocks'
 import { cn } from '@/lib/utils'
 
 /**
@@ -33,8 +35,14 @@ interface DataTableProps<T> {
 export function DataTable<T>({ columns, rows, rowKey, empty, caption }: DataTableProps<T>) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-md border border-gray-200 bg-white px-6 py-16 text-center">
-        {empty ?? <p className="text-body-sm text-gray-500">No records found.</p>}
+      <div className="rounded-lg border border-gray-200/80 bg-white shadow-e1">
+        {empty ?? (
+          <AdminEmptyState
+            icon={Inbox}
+            title="Nothing here yet"
+            description="Records will appear in this list as they are created. Try clearing any active filters."
+          />
+        )}
       </div>
     )
   }
@@ -45,17 +53,18 @@ export function DataTable<T>({ columns, rows, rowKey, empty, caption }: DataTabl
   return (
     <>
       {/* Desktop */}
-      <div className="hidden overflow-x-auto rounded-md border border-gray-200 bg-white shadow-e1 md:block">
+      <div className="hidden overflow-x-auto rounded-lg border border-gray-200/80 bg-white shadow-e1 md:block">
         <table className="w-full border-collapse text-left">
           {caption && <caption className="sr-only">{caption}</caption>}
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50">
+          {/* Sticky within any vertically scrolling wrapper a page provides. */}
+          <thead className="sticky top-0 z-10">
+            <tr className="border-b border-gray-200 bg-gray-50/90">
               {columns.map((column) => (
                 <th
                   key={column.key}
                   scope="col"
                   className={cn(
-                    'whitespace-nowrap px-4 py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-gray-500',
+                    'whitespace-nowrap px-4 py-3.5 text-[11px] font-bold uppercase tracking-[0.08em] text-gray-500',
                     column.align === 'right' && 'text-right',
                   )}
                 >
@@ -68,13 +77,13 @@ export function DataTable<T>({ columns, rows, rowKey, empty, caption }: DataTabl
             {rows.map((row) => (
               <tr
                 key={rowKey(row)}
-                className="border-b border-gray-100 transition-colors duration-fast last:border-b-0 hover:bg-blue-50/40"
+                className="border-b border-gray-100 transition-colors duration-fast last:border-b-0 hover:bg-gray-50/80"
               >
                 {columns.map((column) => (
                   <td
                     key={column.key}
                     className={cn(
-                      'px-4 py-3 align-middle text-[13.5px] text-gray-700',
+                      'px-4 py-3.5 align-middle text-[13.5px] text-gray-700',
                       column.align === 'right' && 'text-right',
                       column.className,
                     )}
@@ -91,7 +100,7 @@ export function DataTable<T>({ columns, rows, rowKey, empty, caption }: DataTabl
       {/* Mobile */}
       <ul className="flex flex-col gap-3 md:hidden">
         {rows.map((row) => (
-          <li key={rowKey(row)} className="rounded-md border border-gray-200 bg-white p-5 shadow-e1">
+          <li key={rowKey(row)} className="rounded-lg border border-gray-200/80 bg-white p-5 shadow-e1">
             <div className="mb-3 text-[15px] font-semibold text-gray-900">{primary.cell(row)}</div>
             <dl className="flex flex-col gap-2">
               {secondary.map((column) => (

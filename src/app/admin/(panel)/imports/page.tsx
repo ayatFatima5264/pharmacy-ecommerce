@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { CheckCircle2, Download, FileUp, ScanSearch } from 'lucide-react'
 import { PageHeader, Panel, StatusPill } from '@/components/admin/ui'
 import { requirePermission } from '@/features/auth/staff/guards'
 import { useDb } from '@/lib/data/source'
@@ -33,9 +34,51 @@ export default async function AdminImportsPage() {
   return (
     <>
       <PageHeader
-        title="Imports"
+        title="Import Excel"
         description="Bulk create and update from Excel. Upload validates first — nothing changes until you commit."
+        action={
+          <div className="flex gap-2">
+            <a
+              href="/admin/imports/template?type=products"
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-gray-200 bg-white px-3.5 text-[13px] font-semibold text-gray-700 shadow-e1 transition-colors duration-fast hover:border-blue-600/30 hover:text-blue-700"
+            >
+              <Download className="h-4 w-4" aria-hidden="true" />
+              Product sample
+            </a>
+            <a
+              href="/admin/imports/template?type=lab_tests"
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-gray-200 bg-white px-3.5 text-[13px] font-semibold text-gray-700 shadow-e1 transition-colors duration-fast hover:border-blue-600/30 hover:text-blue-700"
+            >
+              <Download className="h-4 w-4" aria-hidden="true" />
+              Lab test sample
+            </a>
+          </div>
+        }
       />
+
+      {/* The three-step contract, spelled out before the form. */}
+      <ol className="mb-4 grid gap-3 sm:grid-cols-3">
+        {(
+          [
+            [FileUp, '1 · Upload', 'Excel file (.xlsx / .xls) — up to 2,000 rows.'],
+            [ScanSearch, '2 · Preview & validate', 'Every row is classified: create, update, or error.'],
+            [CheckCircle2, '3 · Commit', 'Only valid rows apply. Errors never block the rest.'],
+          ] as const
+        ).map(([Icon, title, detail]) => (
+          <li
+            key={title}
+            className="flex items-start gap-3 rounded-lg border border-gray-200/80 bg-white p-4 shadow-e1"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+              <Icon className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-[13px] font-bold text-gray-900">{title}</p>
+              <p className="mt-0.5 text-[12px] leading-relaxed text-gray-500">{detail}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
 
       <Panel title="New import" className="mb-4">
         <UploadImportForm />

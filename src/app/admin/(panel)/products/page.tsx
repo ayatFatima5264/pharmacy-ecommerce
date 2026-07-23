@@ -1,6 +1,9 @@
 import Link from 'next/link'
-import { ExternalLink, Pencil, Plus } from 'lucide-react'
+import { AlertTriangle, ExternalLink, Package, PackageSearch, PackageX, Pencil, Plus, Tag } from 'lucide-react'
 import { PageHeader, SeverityStripe, StatCard, StatusPill } from '@/components/admin/ui'
+import { AdminEmptyState, SegmentedTabs } from '@/components/admin/blocks'
+import { BlockedActionButton } from '@/components/admin/toast'
+import { can } from '@/features/auth/staff/guards'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
 import { Pagination } from '@/components/admin/pagination'
@@ -21,6 +24,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams
+  const canManage = await can('products.manage')
 
   const products = await getAdminProducts()
   const categories = await getAdminCategories()
@@ -49,6 +53,24 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   const outOfStock = products.filter((p) => p.stock === 0).length
   const lowStock = products.filter((p) => p.stock > 0 && p.stock < LOW_STOCK_THRESHOLD).length
   const onSale = products.filter((p) => p.compareAtPricePaisa !== null).length
+
+  // Catalog tabs on the stock lens — the axis merchandising actually works in.
+  function tabHref(target?: string) {
+    const qs = new URLSearchParams()
+    if (query) qs.set('q', query)
+    if (category) qs.set('category', category)
+    if (brand) qs.set('brand', brand)
+    if (rx) qs.set('rx', rx)
+    if (target) qs.set('stock', target)
+    const s = qs.toString()
+    return s ? `/admin/products?${s}` : '/admin/products'
+  }
+  const stockTabs = [
+    { label: 'All products', href: tabHref(), active: !stock, count: products.length },
+    { label: 'Low stock', href: tabHref('low'), active: stock === 'low', count: lowStock },
+    { label: 'Nothing sellable', href: tabHref('out'), active: stock === 'out', count: outOfStock },
+    { label: 'On sale', href: tabHref('sale'), active: stock === 'sale', count: onSale },
+  ]
 
   const columns: Column<AdminProductRow>[] = [
     {
@@ -155,13 +177,20 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
         title="Products"
         description="Stock counts sellable units from unexpired batches only."
         action={
-          <Link
-            href="/admin/products/new"
-            className="inline-flex h-9 items-center gap-2 rounded-sm bg-blue-600 px-4 text-[13.5px] font-semibold text-white hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Add product
-          </Link>
+          canManage ? (
+            <Link
+              href="/admin/products/new"
+              className="inline-flex h-10 items-center gap-2 rounded-md bg-blue-600 px-4 text-[13.5px] font-semibold text-white shadow-e1 transition-all duration-medium hover:bg-blue-700 hover:shadow-e2"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add product
+            </Link>
+          ) : (
+            <BlockedActionButton>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add product
+            </BlockedActionButton>
+          )
         }
       />
 
@@ -171,15 +200,17 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
       />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Products" value={String(products.length)} />
-        <StatCard label="On sale" value={String(onSale)} hint="Have a compare-at price" />
-        <StatCard label="Low stock" value={String(lowStock)} tone={lowStock > 0 ? 'warning' : 'neutral'} />
+        <StatCard label="Products" icon={Package} value={String(products.length)} />
+        <StatCard label="On sale" icon={Tag} value={String(onSale)} hint="Have a compare-at price" />
+        <StatCard label="Low stock" icon={AlertTriangle} value={String(lowStock)} tone={lowStock > 0 ? 'warning' : 'neutral'} />
         <StatCard
-          label="Nothing sellable"
+          label="Nothing sellable" icon={PackageX}
           value={String(outOfStock)}
           tone={outOfStock > 0 ? 'danger' : 'neutral'}
         />
       </div>
+
+      <SegmentedTabs tabs={stockTabs} label="Stock filter" />
 
       <FilterBar
         searchPlaceholder="Search name, SKU, brand…"
@@ -198,15 +229,6 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
               { value: 'no', label: 'Over the counter' },
             ],
           },
-          {
-            key: 'stock',
-            label: 'Stock',
-            options: [
-              { value: 'low', label: 'Low stock' },
-              { value: 'out', label: 'Nothing sellable' },
-              { value: 'sale', label: 'On sale' },
-            ],
-          },
         ]}
       />
 
@@ -216,10 +238,20 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
         rowKey={(p) => p.id}
         caption="Products"
         empty={
-          <div>
-            <p className="text-[14px] font-semibold text-gray-900">No products match these filters</p>
-            <p className="mt-1 text-[13px] text-gray-500">Try a different search or clear the filters.</p>
-          </div>
+          <AdminEmptyState
+            icon={PackageSearch}
+            title="No products match these filters"
+            description="Try a different search, another tab, or add the product if it does not exist yet."
+            action={
+              <Link
+                href="/admin/products/new"
+                className="inline-flex h-9 items-center gap-2 rounded-md bg-blue-600 px-4 text-[13px] font-semibold text-white shadow-e1 transition-colors duration-fast hover:bg-blue-700"
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                Add product
+              </Link>
+            }
+          />
         }
       />
 

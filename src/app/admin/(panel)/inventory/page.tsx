@@ -1,5 +1,7 @@
 import Link from 'next/link'
-import { PageHeader, SeverityStripe, StatCard, StatusPill } from '@/components/admin/ui'
+import { AlertTriangle, Boxes, Clock, Layers, PackageSearch } from 'lucide-react'
+import { PageHeader, Panel, SeverityStripe, StatCard, StatusPill } from '@/components/admin/ui'
+import { AdminEmptyState, DistributionBar, SegmentedTabs } from '@/components/admin/blocks'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
 import { Pagination } from '@/components/admin/pagination'
@@ -42,6 +44,24 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
   })
 
   const result = paginate(filtered, parsePage(params.page))
+
+  const healthyCount = rows.filter((r) => r.state === 'healthy').length
+
+  // Expiry-state tabs — the primary way staff slice this list.
+  function tabHref(target?: string) {
+    const qs = new URLSearchParams()
+    if (query) qs.set('q', query)
+    if (pharmacy) qs.set('pharmacy', pharmacy)
+    if (target) qs.set('state', target)
+    const s = qs.toString()
+    return s ? `/admin/inventory?${s}` : '/admin/inventory'
+  }
+  const stateTabs = [
+    { label: 'All batches', href: tabHref(), active: !state, count: rows.length },
+    { label: 'Healthy', href: tabHref('healthy'), active: state === 'healthy', count: healthyCount },
+    { label: 'Expiring soon', href: tabHref('expiring'), active: state === 'expiring', count: summary.expiring.length },
+    { label: 'Expired', href: tabHref('expired'), active: state === 'expired', count: summary.expired.length },
+  ]
 
   const columns: Column<BatchRow>[] = [
     {
@@ -138,19 +158,19 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
       />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Batches" value={String(summary.batchCount)} />
+        <StatCard label="Batches" icon={Layers} value={String(summary.batchCount)} />
         <StatCard
-          label="Units on hand"
+          label="Units on hand" icon={Boxes}
           value={summary.totalUnits.toLocaleString('en-PK')}
           hint={`${summary.reservedUnits.toLocaleString('en-PK')} reserved`}
         />
         <StatCard
-          label={`Expiring < ${EXPIRY_WARNING_DAYS} days`}
+          label={`Expiring < ${EXPIRY_WARNING_DAYS} days`} icon={Clock}
           value={String(summary.expiring.length)}
           tone={summary.expiring.length > 0 ? 'warning' : 'neutral'}
         />
         <StatCard
-          label="Expired batches"
+          label="Expired batches" icon={AlertTriangle}
           value={String(summary.expired.length)}
           tone={summary.expired.length > 0 ? 'danger' : 'neutral'}
           hint={
@@ -177,20 +197,25 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
         </div>
       )}
 
+      {/* Composition before detail: one bar answers "how healthy is the
+          shelf?" before anyone reads a row. */}
+      <Panel title="Stock health" className="mb-4">
+        <DistributionBar
+          segments={[
+            { label: 'Healthy batches', value: healthyCount, colorClass: 'bg-green-600' },
+            { label: 'Expiring soon', value: summary.expiring.length, colorClass: 'bg-amber-600' },
+            { label: 'Expired', value: summary.expired.length, colorClass: 'bg-red-600' },
+          ]}
+        />
+      </Panel>
+
       <ReceiveBatchForm options={options} pharmacies={PHARMACIES} />
+
+      <SegmentedTabs tabs={stateTabs} label="Batch expiry state" />
 
       <FilterBar
         searchPlaceholder="Search batch, product, SKU…"
         selects={[
-          {
-            key: 'state',
-            label: 'Expiry',
-            options: [
-              { value: 'expired', label: 'Expired' },
-              { value: 'expiring', label: 'Expiring soon' },
-              { value: 'healthy', label: 'Healthy' },
-            ],
-          },
           {
             key: 'pharmacy',
             label: 'Branch',
@@ -205,12 +230,11 @@ export default async function AdminInventoryPage({ searchParams }: { searchParam
         rowKey={(r) => r.id}
         caption="Inventory batches"
         empty={
-          <div>
-            <p className="text-[14px] font-semibold text-gray-900">No batches match these filters</p>
-            <p className="mt-1 text-[13px] text-gray-500">
-              Receive stock to create a batch, or clear the filters.
-            </p>
-          </div>
+          <AdminEmptyState
+            icon={PackageSearch}
+            title="No batches match these filters"
+            description="Receive stock to create a batch, or switch to another expiry tab."
+          />
         }
       />
 

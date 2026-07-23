@@ -49,6 +49,9 @@ export const RATE_LIMITS = {
   coupon: { limit: 20, windowMs: 10 * 60 * 1000 },
   trackOrder: { limit: 20, windowMs: 10 * 60 * 1000 },
   contact: { limit: 5, windowMs: 60 * 60 * 1000 },
+  // Keyed by user id, not IP: reviews require a session, and 10/hour is
+  // plenty for a human rating a delivered order's items.
+  review: { limit: 10, windowMs: 60 * 60 * 1000 },
   adminWrite: { limit: 120, windowMs: 60 * 1000 },
 } as const satisfies Record<string, RateLimitRule>
 

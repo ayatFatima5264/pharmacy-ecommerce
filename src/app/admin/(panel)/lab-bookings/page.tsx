@@ -1,12 +1,21 @@
-import { Home, MapPin } from 'lucide-react'
+import {
+  Banknote,
+  Building2,
+  CalendarClock,
+  Clock,
+  FlaskConical,
+  Home,
+  Microscope,
+  User,
+} from 'lucide-react'
 import { PageHeader, StatCard } from '@/components/admin/ui'
-import { DataTable, type Column } from '@/components/admin/data-table'
+import { AdminEmptyState, DateChip, SegmentedTabs } from '@/components/admin/blocks'
 import { FilterBar } from '@/components/admin/filter-bar'
 import { Pagination } from '@/components/admin/pagination'
 import { BookingStatusPill, bookingStatusOptions } from '@/components/admin/status'
-import { getAdminBookings, type AdminBooking } from '@/lib/data/admin'
+import { getAdminBookings } from '@/lib/data/admin'
 import { matchesQuery, paginate, param, parsePage } from '@/lib/data/paginate'
-import { formatDate, formatPrice } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils'
 import { cities } from '@/config/site'
 
 export const metadata = { title: 'Lab Bookings' }
@@ -40,66 +49,24 @@ export default async function AdminLabBookingsPage({ searchParams }: { searchPar
     .filter((b) => b.status !== 'cancelled')
     .reduce((sum, b) => sum + b.pricePaisa, 0)
 
-  const columns: Column<AdminBooking>[] = [
-    {
-      key: 'booking',
-      header: 'Booking',
-      primary: true,
-      cell: (booking) => (
-        <div className="min-w-0">
-          <p className="tabular truncate font-semibold text-gray-900">{booking.bookingNumber}</p>
-          <p className="truncate text-[12.5px] text-gray-500">{booking.patientName}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'test',
-      header: 'Tests',
-      cell: (booking) => (
-        <div className="min-w-0 md:max-w-[220px]">
-          <p className="truncate">{booking.testName}</p>
-          <p className="truncate text-[12.5px] text-gray-500">{booking.labName}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'schedule',
-      header: 'Scheduled',
-      cell: (booking) => (
-        <div className="flex flex-col items-end gap-0.5 md:items-start">
-          <span className="whitespace-nowrap">{formatDate(booking.scheduledAt)}</span>
-          <span className="text-[12.5px] text-gray-500">{booking.slot}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'mode',
-      header: 'Collection',
-      hideOnMobile: true,
-      cell: (booking) => (
-        <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-          {booking.collectionMode === 'home' ? (
-            <Home className="h-3.5 w-3.5 text-gray-400" aria-hidden="true" />
-          ) : (
-            <MapPin className="h-3.5 w-3.5 text-gray-400" aria-hidden="true" />
-          )}
-          {booking.collectionMode === 'home' ? `Home · ${booking.city}` : `Lab visit · ${booking.city}`}
-        </span>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      cell: (booking) => <BookingStatusPill status={booking.status} />,
-    },
-    {
-      key: 'price',
-      header: 'Value',
-      align: 'right',
-      cell: (booking) => (
-        <span className="tabular font-semibold text-gray-900">{formatPrice(booking.pricePaisa)}</span>
-      ),
-    },
+  // Appointment-book tabs: the status pipeline reads left to right.
+  function tabHref(target?: string) {
+    const qs = new URLSearchParams()
+    if (query) qs.set('q', query)
+    if (city) qs.set('city', city)
+    if (mode) qs.set('mode', mode)
+    if (target) qs.set('status', target)
+    const s = qs.toString()
+    return s ? `/admin/lab-bookings?${s}` : '/admin/lab-bookings'
+  }
+  const statusTabs = [
+    { label: 'All', href: tabHref(), active: !status, count: adminBookings.length },
+    ...bookingStatusOptions.map((option) => ({
+      label: option.label,
+      href: tabHref(option.value),
+      active: status === option.value,
+      count: adminBookings.filter((b) => b.status === option.value).length,
+    })),
   ]
 
   return (
@@ -109,17 +76,18 @@ export default async function AdminLabBookingsPage({ searchParams }: { searchPar
         description="Home collections and lab visits taken through checkout."
       />
 
-      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Bookings" value={String(adminBookings.length)} />
-        <StatCard label="Scheduled" value={String(scheduled)} tone={scheduled ? 'warning' : undefined} />
-        <StatCard label="Home collections" value={String(homeCollections)} />
-        <StatCard label="Booked value" value={formatPrice(bookedValue)} />
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Bookings" icon={Microscope} value={String(adminBookings.length)} />
+        <StatCard label="Scheduled" icon={CalendarClock} value={String(scheduled)} tone={scheduled ? 'warning' : undefined} />
+        <StatCard label="Home collections" icon={Home} value={String(homeCollections)} />
+        <StatCard label="Booked value" icon={Banknote} value={formatPrice(bookedValue)} />
       </div>
+
+      <SegmentedTabs tabs={statusTabs} label="Booking status" />
 
       <FilterBar
         searchPlaceholder="Search booking, patient, test…"
         selects={[
-          { key: 'status', label: 'Status', options: bookingStatusOptions },
           { key: 'city', label: 'City', options: cities.map((c) => ({ value: c, label: c })) },
           {
             key: 'mode',
@@ -132,18 +100,71 @@ export default async function AdminLabBookingsPage({ searchParams }: { searchPar
         ]}
       />
 
-      <DataTable
-        columns={columns}
-        rows={result.rows}
-        rowKey={(b) => b.id}
-        caption="Lab bookings"
-        empty={
-          <div>
-            <p className="text-[14px] font-semibold text-gray-900">No bookings match</p>
-            <p className="mt-1 text-[13px] text-gray-500">Try a different search or clear filters.</p>
-          </div>
-        }
-      />
+      {/* Appointment cards: the date tile leads, exactly like a diary page —
+          staff plan collections by day, not by booking number. */}
+      {result.rows.length === 0 ? (
+        <div className="rounded-lg border border-gray-200/80 bg-white shadow-e1">
+          <AdminEmptyState
+            icon={Microscope}
+            title="No bookings match"
+            description="New lab bookings land here the moment checkout confirms them. Try another status tab or clear the filters."
+          />
+        </div>
+      ) : (
+        <ul className="grid gap-4 md:grid-cols-2">
+          {result.rows.map((booking) => (
+            <li
+              key={booking.id}
+              className="flex gap-4 rounded-lg border border-gray-200/80 bg-white p-5 shadow-e1 transition-shadow duration-medium hover:shadow-e2"
+            >
+              <div className="flex flex-col items-center gap-1.5">
+                <DateChip date={booking.scheduledAt} />
+                <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500">
+                  <Clock className="h-3 w-3" aria-hidden="true" />
+                  {booking.slot}
+                </span>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="tabular text-[12px] font-semibold text-gray-400">
+                      {booking.bookingNumber}
+                    </p>
+                    <p className="flex items-center gap-1.5 truncate text-[14px] font-bold text-gray-900">
+                      <User className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden="true" />
+                      {booking.patientName}
+                    </p>
+                  </div>
+                  <BookingStatusPill status={booking.status} />
+                </div>
+
+                <p className="mt-2 flex items-center gap-1.5 text-[13px] text-gray-700">
+                  <FlaskConical className="h-3.5 w-3.5 shrink-0 text-blue-600" aria-hidden="true" />
+                  <span className="truncate">
+                    {booking.testName}
+                    <span className="text-gray-500"> · {booking.labName}</span>
+                  </span>
+                </p>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 px-2.5 py-1 text-[12px] font-semibold text-gray-600">
+                    {booking.collectionMode === 'home' ? (
+                      <Home className="h-3 w-3 text-blue-600" aria-hidden="true" />
+                    ) : (
+                      <Building2 className="h-3 w-3 text-blue-600" aria-hidden="true" />
+                    )}
+                    {booking.collectionMode === 'home' ? 'Home' : 'Lab visit'} · {booking.city}
+                  </span>
+                  <span className="tabular text-[14px] font-bold text-gray-900">
+                    {formatPrice(booking.pricePaisa)}
+                  </span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <Pagination result={result} searchParams={params} basePath="/admin/lab-bookings" />
     </>

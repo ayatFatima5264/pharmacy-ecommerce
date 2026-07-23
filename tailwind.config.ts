@@ -40,6 +40,16 @@ const config: Config = {
           600: 'var(--red-600)',
           700: 'var(--red-700)',
         },
+        sky: {
+          50: 'var(--sky-50)',
+          600: 'var(--sky-600)',
+          700: 'var(--sky-700)',
+        },
+        purple: {
+          50: 'var(--purple-50)',
+          600: 'var(--purple-600)',
+          700: 'var(--purple-700)',
+        },
         gray: {
           50: 'var(--gray-50)',
           100: 'var(--gray-100)',

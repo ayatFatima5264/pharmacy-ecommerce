@@ -9,6 +9,12 @@ export const siteConfig = {
   phone: '+92 21 111 734 728',
   email: 'care@armedicalstore.pk',
   address: 'Plot 24, Shahrah-e-Faisal, Karachi, Sindh 75350',
+  /** PLACEHOLDER number — swap for the real business line here, nowhere else.
+   *  Digits-only formatting happens in lib/whatsapp.ts. */
+  whatsapp: '+92 300 0000000',
+  /** PLACEHOLDER coordinates (central Lahore) for the contact-page map — swap
+   *  for the real store pin here, nowhere else. */
+  location: { lat: 31.5204, lng: 74.3587 },
   drapLicense: 'DRAP-PH-2024-11482',
   pharmacist: 'Dr. Ayesha Siddiqui, Pharm-D (PCP Reg. 41209)',
   hours: 'Every day, 9:00 AM – 11:00 PM',
@@ -62,6 +68,7 @@ export const footerNav = [
     links: [
       { label: 'About us', href: '/about' },
       { label: 'Contact', href: '/contact' },
+      { label: 'FAQs', href: '/faq' },
       { label: 'Track order', href: '/track-order' },
     ],
   },

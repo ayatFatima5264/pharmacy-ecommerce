@@ -347,6 +347,23 @@ export function ProductForm({
             <div className="flex flex-col gap-3">
               {images.map((image, i) => (
                 <div key={image.key} className="flex flex-col gap-3 rounded-sm border border-gray-200 p-3 sm:flex-row">
+                  {/* Live preview: the URL is the upload in this build, so
+                      showing it is the "upload preview". */}
+                  {image.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={image.url}
+                      alt=""
+                      className="h-16 w-16 shrink-0 rounded-md border border-gray-200 bg-gray-50 object-cover"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border border-dashed border-gray-200 bg-gray-50 text-[10px] font-semibold uppercase tracking-wide text-gray-400"
+                    >
+                      Preview
+                    </span>
+                  )}
                   <div className="grid flex-1 gap-3 sm:grid-cols-2">
                     <AdminField label="Image URL" name={`image.${i}.url`} error={err(`images.${i}.url`)}>
                       <AdminInput
@@ -520,15 +537,23 @@ export function ProductForm({
             </div>
           </FormSection>
 
-          <div className="flex flex-wrap gap-2">
-            <SubmitButton pendingLabel="Saving…">{submitLabel}</SubmitButton>
-            <Link
-              href="/admin/products"
-              className="inline-flex h-9 items-center rounded-sm border border-gray-200 bg-white px-4 text-[13.5px] font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </Link>
-          </div>
+        </div>
+      </div>
+
+      {/* Sticky save bar: the action is reachable from anywhere in a long
+          form, exactly like Shopify's. */}
+      <div className="sticky bottom-4 z-20 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200/80 bg-white/95 p-3.5 shadow-e2 backdrop-blur">
+        <p className="hidden text-[12.5px] text-gray-500 sm:block">
+          Changes apply when you save — nothing is stored while you type.
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/products"
+            className="inline-flex h-10 items-center rounded-md border border-gray-200 bg-white px-4 text-[13.5px] font-semibold text-gray-700 transition-colors duration-fast hover:bg-gray-50"
+          >
+            Cancel
+          </Link>
+          <SubmitButton pendingLabel="Saving…">{submitLabel}</SubmitButton>
         </div>
       </div>
     </form>

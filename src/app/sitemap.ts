@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getHealthPackages(),
   ])
 
-  const staticRoutes = ['', '/pharmacy', '/lab-tests', '/health-packages', '/about', '/contact', '/track-order']
+  const staticRoutes = ['', '/pharmacy', '/lab-tests', '/health-packages', '/about', '/contact', '/faq', '/track-order']
 
   return [
     ...staticRoutes.map((route) => ({

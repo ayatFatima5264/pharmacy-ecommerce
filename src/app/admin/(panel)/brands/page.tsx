@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Pencil } from 'lucide-react'
+import { Package, PackageOpen, Pencil, Tags } from 'lucide-react'
 import { PageHeader, StatCard, StatusPill } from '@/components/admin/ui'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
@@ -109,10 +109,10 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
       <FlashBanner params={params} messages={{ created: 'Brand created.' }} />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
-        <StatCard label="Brands" value={String(rows.length)} />
-        <StatCard label="Products linked" value={String(rows.reduce((sum, b) => sum + b.productCount, 0))} />
+        <StatCard label="Brands" icon={Tags} value={String(rows.length)} />
+        <StatCard label="Products linked" icon={Package} value={String(rows.reduce((sum, b) => sum + b.productCount, 0))} />
         <StatCard
-          label="Without products"
+          label="Without products" icon={PackageOpen}
           value={String(rows.filter((b) => b.productCount === 0).length)}
           tone={rows.some((b) => b.productCount === 0) ? 'warning' : 'neutral'}
         />

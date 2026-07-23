@@ -2,6 +2,7 @@ import 'server-only'
 import { cache } from 'react'
 import { supabaseService } from '@/lib/supabase/server'
 import { deterministicId } from '@/lib/supabase/deterministic-id'
+import { fetchRatingSummaries } from '@/lib/data/db/reviews-db'
 import { categoryIcon, DEFAULT_ICONS } from '@/config/icons'
 import { PHARMACIES } from '@/lib/data/admin-catalog'
 import {
@@ -9,7 +10,7 @@ import {
   categories as scaffoldCategories,
   products as scaffoldProducts,
 } from '@/lib/data/catalog'
-import type { Brand, Category, Product } from '@/types'
+import type { Brand, Category, Product, RatingSummary } from '@/types'
 
 /**
  * Pharmacy catalog reads, database-backed. Every function returns the SAME
@@ -93,7 +94,11 @@ export const fetchStockMap = cache(async (): Promise<Map<string, number>> => {
   return map
 })
 
-function mapProduct(row: ProductRow, stock: Map<string, number>): Product {
+function mapProduct(
+  row: ProductRow,
+  stock: Map<string, number>,
+  ratings: Map<string, RatingSummary>,
+): Product {
   const scaffold = scaffoldProductBySlug.get(row.slug)
   const categorySlugs = row.product_categories
     .slice()
@@ -139,16 +144,18 @@ function mapProduct(row: ProductRow, stock: Map<string, number>): Product {
         compareAtPricePaisa: v.compare_at_price_paisa,
         inStock: (stock.get(v.id) ?? 0) > 0,
       })),
+    rating: ratings.get(row.id),
   }
 }
 
 const fetchAllProducts = cache(async (): Promise<Product[]> => {
-  const [{ data, error }, stock] = await Promise.all([
+  const [{ data, error }, stock, ratings] = await Promise.all([
     supabaseService().from('products').select(PRODUCT_SELECT).eq('is_active', true).order('name'),
     fetchStockMap(),
+    fetchRatingSummaries(),
   ])
   if (error) throw new Error(`products query failed: ${error.message}`)
-  return ((data ?? []) as unknown as ProductRow[]).map((row) => mapProduct(row, stock))
+  return ((data ?? []) as unknown as ProductRow[]).map((row) => mapProduct(row, stock, ratings))
 })
 
 export const getProductsDb = fetchAllProducts

@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Building2, FileUp, FlaskConical, Microscope, Utensils } from 'lucide-react'
 import { PageHeader, StatCard, StatusPill } from '@/components/admin/ui'
 import { DataTable, type Column } from '@/components/admin/data-table'
 import { FilterBar } from '@/components/admin/filter-bar'
 import { Pagination } from '@/components/admin/pagination'
-import { Button } from '@/components/ui/button'
 import { getAdminLabTests } from '@/lib/data/admin'
 import { matchesQuery, paginate, param, parsePage } from '@/lib/data/paginate'
 import { formatPrice, turnaroundLabel } from '@/lib/utils'
@@ -89,22 +88,27 @@ export default async function AdminLabTestsPage({ searchParams }: { searchParams
         title="Lab tests"
         description="The diagnostic catalog. Price is per lab, so the same test can differ between partners."
         action={
-          <Button size="sm">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Add test
-          </Button>
+          // Tests are created and updated through the Excel import (upsert by
+          // test_code) — this is the real affordance, not a dead button.
+          <Link
+            href="/admin/imports"
+            className="inline-flex h-10 items-center gap-2 rounded-md bg-blue-600 px-4 text-[13.5px] font-semibold text-white shadow-e1 transition-all duration-medium hover:bg-blue-700 hover:shadow-e2"
+          >
+            <FileUp className="h-4 w-4" aria-hidden="true" />
+            Add / update via Excel
+          </Link>
         }
       />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Tests" value={String(adminLabTests.length)} />
-        <StatCard label="Partner labs" value={String(labs.length)} />
+        <StatCard label="Tests" icon={FlaskConical} value={String(adminLabTests.length)} />
+        <StatCard label="Partner labs" icon={Building2} value={String(labs.length)} />
         <StatCard
-          label="Fasting required"
+          label="Fasting required" icon={Utensils}
           value={String(adminLabTests.filter((t) => t.fastingRequired).length)}
         />
         <StatCard
-          label="Total bookings"
+          label="Total bookings" icon={Microscope}
           value={String(adminLabTests.reduce((sum, t) => sum + t.bookingCount, 0))}
         />
       </div>
